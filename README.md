@@ -3,7 +3,7 @@
 旅行で困らない英会話を **Lv.1〜100** のステップで身につけるブラウザアプリ。
 スマホでもPCでも、ブラウザだけで動く完全静的サイトです。
 
-**🎮 公開URL: https://foolish1023.github.io/english-app/**
+**🎮 公開URL: https://wamoto1022.github.io/english-app/**
 
 ---
 
