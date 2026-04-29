@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>旅行英会話マスター</title>
+<style>
+  :root {
+    --bg: #f4f1ea;
+    --ink: #2a2520;
+    --sub: #786f63;
+    --card: #fff;
+    --line: #e8e0d0;
+    --accent: #7b4fd6;
+    --gold: #f5b400;
+    --good: #4caf50;
+    --locked: #b8b1a0;
+  }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Hiragino Sans", "Yu Gothic UI", sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+    line-height: 1.55;
+    max-width: 540px;
+    margin: 0 auto;
+    padding: 16px 14px 60px;
+    min-height: 100vh;
+  }
+  header h1 { font-size: 20px; margin: 0 0 4px; }
+  header .sub { color: var(--sub); font-size: 12px; margin: 0 0 16px; }
+
+  /* レベルカード */
+  .level-card {
+    color: #fff;
+    border-radius: 18px;
+    padding: 18px 20px 14px;
+    margin-bottom: 14px;
+    box-shadow: 0 6px 16px rgba(0,0,0,0.12);
+  }
+  .level-card .top {
+    display: flex; align-items: center; gap: 12px;
+  }
+  .level-card .lv-badge {
+    background: rgba(255,255,255,0.22);
+    border-radius: 12px;
+    padding: 8px 12px;
+    font-size: 11px; font-weight: 600;
+  }
+  .level-card .lv-num {
+    font-size: 36px; font-weight: 800; line-height: 1;
+    margin-top: 2px;
+  }
+  .level-card .lv-num span { font-size: 16px; opacity: 0.7; }
+  .level-card .tier-name {
+    flex: 1;
+    font-size: 13px;
+    text-align: right;
+    opacity: 0.95;
+  }
+  .level-card .tier-name .emoji { font-size: 22px; display: block; margin-bottom: 2px; }
+  .level-card .progress-wrap {
+    margin-top: 14px;
+    background: rgba(255,255,255,0.2);
+    border-radius: 6px;
+    height: 8px;
+    overflow: hidden;
+  }
+  .level-card .progress {
+    height: 100%; background: var(--gold);
+    transition: width 0.5s;
+  }
+  .level-card .stats {
+    font-size: 11px; margin-top: 8px;
+    opacity: 0.95;
+  }
+
+  /* 今日のおすすめ */
+  .recommend {
+    background: var(--card);
+    border: 2px solid var(--gold);
+    border-radius: 14px;
+    padding: 14px;
+    margin-bottom: 14px;
+    cursor: pointer;
+  }
+  .recommend:active { transform: scale(0.99); }
+  .recommend .label {
+    background: var(--gold); color: #fff;
+    font-size: 10px; font-weight: 700;
+    padding: 2px 8px; border-radius: 8px;
+    display: inline-block; margin-bottom: 8px;
+  }
+  .recommend .title { font-weight: 700; font-size: 16px; margin-bottom: 4px; }
+  .recommend .reason { font-size: 12px; color: var(--sub); }
+  .recommend .start-btn {
+    margin-top: 10px;
+    background: var(--accent); color: #fff;
+    padding: 10px; border: 0; border-radius: 10px;
+    font-weight: 700; width: 100%; font-size: 14px;
+    cursor: pointer;
+  }
+
+  /* セクション */
+  .section {
+    margin-top: 22px; margin-bottom: 8px;
+    font-size: 13px; font-weight: 700; color: var(--sub);
+    letter-spacing: 0.5px;
+    display: flex; align-items: center; gap: 6px;
+  }
+
+  /* 学習ガイド */
+  details.guide {
+    background: var(--card);
+    border-radius: 12px;
+    border: 1px solid var(--line);
+    padding: 0;
+    margin-bottom: 14px;
+    overflow: hidden;
+  }
+  details.guide summary {
+    list-style: none; cursor: pointer;
+    padding: 12px 14px;
+    font-weight: 600; font-size: 14px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  details.guide summary::-webkit-details-marker { display: none; }
+  details.guide summary::after {
+    content: '▼'; margin-left: auto; font-size: 10px; color: var(--sub);
+    transition: transform 0.2s;
+  }
+  details.guide[open] summary::after { transform: rotate(180deg); }
+  .guide-body {
+    padding: 0 14px 14px;
+    font-size: 13px;
+  }
+  .guide-body ol { padding-left: 22px; margin: 8px 0; }
+  .guide-body li { margin-bottom: 8px; }
+  .guide-body li b { color: var(--accent); }
+  .milestone-list {
+    list-style: none; padding: 0; margin: 8px 0 0;
+    font-size: 12px;
+  }
+  .milestone-list li {
+    display: flex; align-items: center; gap: 8px;
+    padding: 6px 0; border-top: 1px dashed var(--line);
+  }
+  .milestone-list li:first-child { border-top: 0; }
+  .milestone-list li .lv {
+    background: var(--accent); color: #fff;
+    padding: 2px 7px; border-radius: 8px; font-weight: 700;
+    font-size: 11px; min-width: 44px; text-align: center;
+  }
+  .milestone-list li.done .lv { background: var(--good); }
+
+  /* ステージブロック */
+  .stage-block {
+    background: var(--card);
+    border-radius: 16px;
+    padding: 0;
+    margin-bottom: 14px;
+    border: 1px solid var(--line);
+    overflow: hidden;
+    transition: opacity 0.2s;
+  }
+  .stage-block.locked { opacity: 0.5; pointer-events: none; }
+  .stage-head {
+    padding: 14px 16px 10px;
+    color: #fff;
+    position: relative;
+  }
+  .stage-head .row1 {
+    display: flex; align-items: center; gap: 8px;
+  }
+  .stage-head .row1 .emoji { font-size: 28px; }
+  .stage-head .row1 .name {
+    font-size: 17px; font-weight: 800;
+  }
+  .stage-head .row1 .ja {
+    font-size: 11px; opacity: 0.85;
+  }
+  .stage-head .row1 .lv-range {
+    margin-left: auto;
+    background: rgba(255,255,255,0.22);
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 700;
+  }
+  .stage-head .desc {
+    font-size: 12px;
+    opacity: 0.95;
+    margin-top: 4px;
+  }
+  .stage-head .turn-hint {
+    display: inline-block;
+    background: rgba(0,0,0,0.18);
+    padding: 2px 8px;
+    border-radius: 8px;
+    font-size: 10px;
+    margin-top: 4px;
+  }
+  .stage-head .stage-progress {
+    margin-top: 8px;
+    background: rgba(255,255,255,0.2);
+    height: 6px; border-radius: 4px; overflow: hidden;
+  }
+  .stage-head .stage-progress > div {
+    height: 100%; background: var(--gold);
+  }
+  .stage-head .progress-text {
+    font-size: 10px;
+    margin-top: 4px;
+    opacity: 0.95;
+  }
+  .lock-overlay {
+    position: absolute; inset: 0;
+    display: flex; align-items: center; justify-content: center;
+    background: rgba(0,0,0,0.4);
+    color: #fff; font-size: 14px; font-weight: 700;
+  }
+
+  /* シュチュエーション一覧 */
+  .sit-row {
+    display: flex; align-items: center;
+    padding: 12px 16px;
+    border-top: 1px solid var(--line);
+    cursor: pointer; gap: 10px;
+    background: #fff;
+  }
+  .sit-row:active { background: #f7f3ea; }
+  .sit-row .icon {
+    width: 36px; height: 36px; border-radius: 50%;
+    background: #f0ebe0;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px; flex-shrink: 0;
+  }
+  .sit-row .ttl { flex: 1; font-size: 14px; min-width: 0; }
+  .sit-row .ttl .sub {
+    font-size: 11px; color: var(--sub); margin-top: 2px;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .sit-row .stars {
+    font-size: 13px; letter-spacing: 1px; color: var(--gold);
+    flex-shrink: 0;
+  }
+  .sit-row .stars .empty { color: #d8d3c4; }
+  .sit-row .arrow { color: var(--sub); margin-left: 4px; }
+
+  /* リセット */
+  .reset-zone { margin-top: 28px; text-align: center; }
+  .reset-zone button {
+    background: none; border: 1px solid var(--line);
+    color: var(--sub); font-size: 11px;
+    padding: 6px 14px; border-radius: 14px;
+    cursor: pointer;
+  }
+</style>
+</head>
+<body>
+<header>
+  <h1>🧳 旅行英会話マスター</h1>
+  <p class="sub">5ステージ・25シュチュエーション。Lv 100で会話の超長文まで対応!</p>
+</header>
+
+<div id="dashboard"></div>
+
+<script src="data.js"></script>
+<script>
+const dash = document.getElementById('dashboard');
+
+function render() {
+  const lv = Curriculum.level();
+  const stars = Curriculum.totalStars();
+  const rec = Curriculum.recommend();
+  const lvPct = ((lv - 1) / (MAX_LEVEL - 1)) * 100;
+  // 現在のステージ判定 (最も上の解放されたステージ)
+  let curTier = STAGES[0];
+  for (let i = STAGES.length - 1; i >= 0; i--) {
+    if (Curriculum.isStageUnlocked(i)) { curTier = STAGES[i]; break; }
+  }
+
+  let html = '';
+
+  // ===== レベルカード =====
+  html += `
+    <div class="level-card" style="background: linear-gradient(135deg, ${curTier.color}, ${curTier.color}cc);">
+      <div class="top">
+        <div>
+          <div class="lv-badge">LEVEL</div>
+          <div class="lv-num">${lv}<span> / 100</span></div>
+        </div>
+        <div class="tier-name">
+          <div class="emoji">${curTier.emoji}</div>
+          ${curTier.title}<br>
+          <span style="opacity:0.85;font-size:11px;">${curTier.ja}</span>
+        </div>
+      </div>
+      <div class="progress-wrap"><div class="progress" style="width:${lvPct}%"></div></div>
+      <div class="stats">
+        ⭐ ${stars.got} / ${stars.max} 星 ・ Lv.${lv === MAX_LEVEL ? '100 達成🎉' : `${MAX_LEVEL} まで進行中`}
+      </div>
+    </div>
+  `;
+
+  // ===== 今日のおすすめ =====
+  if (rec) {
+    const sc = rec.item.stage;
+    const ls = rec.item.situation;
+    html += `
+      <div class="recommend" id="recCard">
+        <span class="label">今日のおすすめ</span>
+        <div class="title">${ls.icon} ${ls.title}</div>
+        <div class="reason">${rec.subtitle}</div>
+        <button class="start-btn">▶ ${rec.reason}</button>
+      </div>
+    `;
+  }
+
+  // ===== 学習ガイド =====
+  html += `
+    <details class="guide" id="guideHow">
+      <summary>📖 ゴール達成のための学習法 (タップで開く)</summary>
+      <div class="guide-body">
+        <p style="margin:0 0 8px;font-size:12px;color:var(--sub);">
+          英検3級レベルから「旅行で英語が通じる」状態になるための具体的なステップです。
+          <b>1日10〜15分、3シュチュエーションを目安に。</b>
+        </p>
+        <ol>
+          <li><b>ステージ順に進む:</b> 入門→マスターと順に。前ステージが完了しないと次は解放されない。</li>
+          <li><b>聞くだけステージ:</b> まず🔊で音声を流して耳を慣らす。意味がわからなくてOK。</li>
+          <li><b>意味を確認:</b> 吹き出しの「訳」ボタンで意味を確認。1回確認したらまた英語だけで聞く。</li>
+          <li><b>3択で答える:</b> 自分のターンで正解を選ぶ。間違えても良い。正解音声を聞いて口で真似する。</li>
+          <li><b>同じ会話を3回:</b> 1回目=理解、2回目=予測、3回目=反射的に。3星(100%)を目指す。</li>
+          <li><b>毎日少しずつ:</b> 1日に新シュチュ1つ + 既習2つの復習。毎日続けることが最重要。</li>
+          <li><b>速度を上げる:</b> Normal速度で詰まらず答えられるようになったら本番想定で完走。</li>
+        </ol>
+        <p style="margin:12px 0 4px;font-size:12px;color:var(--accent);font-weight:700;">📍 マイルストーン</p>
+        <ul class="milestone-list" id="milestoneList"></ul>
+      </div>
+    </details>
+  `;
+
+  // ===== ステージ一覧 =====
+  html += `<div class="section">🎯 ステージ (5段階・全25シュチュエーション)</div>`;
+  STAGES.forEach((stage, idx) => {
+    const unlocked = Curriculum.isStageUnlocked(idx);
+    const prog = Curriculum.stageProgress(stage);
+    const pct = (prog.cleared / prog.total) * 100;
+    html += `
+      <div class="stage-block ${!unlocked ? 'locked' : ''}">
+        <div class="stage-head" style="background: linear-gradient(135deg, ${stage.color}, ${stage.color}cc);">
+          <div class="row1">
+            <div class="emoji">${stage.emoji}</div>
+            <div>
+              <div class="name">${stage.title}</div>
+              <div class="ja">${stage.ja}</div>
+            </div>
+            <div class="lv-range">Lv ${stage.levelRange[0]}〜${stage.levelRange[1]}</div>
+          </div>
+          <div class="desc">${stage.description}</div>
+          <span class="turn-hint">📏 ${stage.turnHint}</span>
+          <div class="stage-progress"><div style="width:${pct}%"></div></div>
+          <div class="progress-text">${prog.cleared}/${prog.total} クリア ・ ${prog.mastered}/${prog.total} マスター(3星)</div>
+          ${!unlocked ? '<div class="lock-overlay">🔒 前のステージをクリアで解放</div>' : ''}
+        </div>
+        ${unlocked ? stage.situations.map(sit => {
+          const stars = Curriculum.starsFor(sit.id);
+          return `
+            <div class="sit-row" data-id="${sit.id}">
+              <div class="icon">${sit.icon}</div>
+              <div class="ttl">${sit.title}<div class="sub">${sit.situation}</div></div>
+              <div class="stars">${[1,2,3].map(n => n <= stars
+                ? '<span>★</span>'
+                : '<span class="empty">☆</span>').join('')}</div>
+              <div class="arrow">›</div>
+            </div>
+          `;
+        }).join('') : ''}
+      </div>
+    `;
+  });
+
+  // ===== リセット =====
+  html += `
+    <div class="reset-zone">
+      <button id="resetBtn">進捗をリセット</button>
+    </div>
+  `;
+
+  dash.innerHTML = html;
+
+  // マイルストーン
+  const ms = document.getElementById('milestoneList');
+  if (ms) {
+    ms.innerHTML = Curriculum.milestones.map(m => `
+      <li class="${lv >= m.lv ? 'done' : ''}">
+        <span class="lv">Lv${m.lv}</span>
+        <span>${m.msg} ${lv >= m.lv ? '✓' : ''}</span>
+      </li>
+    `).join('');
+  }
+
+  // クリックハンドラ
+  const recCard = document.getElementById('recCard');
+  if (recCard && rec) {
+    recCard.onclick = () => {
+      location.href = `pattern-c.html?l=${rec.item.situation.id}`;
+    };
+  }
+  dash.querySelectorAll('.sit-row').forEach(el => {
+    el.onclick = () => location.href = `pattern-c.html?l=${el.dataset.id}`;
+  });
+  document.getElementById('resetBtn').onclick = () => {
+    if (confirm('全ての進捗 (星・レベル) をリセットします。よろしいですか?')) {
+      Curriculum.reset();
+      render();
+    }
+  };
+}
+
+render();
+</script>
+</body>
+</html>
