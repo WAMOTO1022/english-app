@@ -16,6 +16,7 @@
     --accent: #7b4fd6;
     --good: #4caf50;
     --bad: #ef5350;
+    --line: #e8e0d0;
   }
   * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; -webkit-text-size-adjust: 100%; }
   html, body { margin: 0; padding: 0; }
@@ -289,6 +290,56 @@
     background: rgba(255,255,255,0.7);
     padding: 8px 10px; border-radius: 8px;
   }
+
+  /* 10語スピーキング練習 */
+  .shadow-drill {
+    background: #fff;
+    border: 1px solid #d4cec3;
+    border-radius: 14px;
+    padding: 12px;
+    margin-top: 8px;
+  }
+  .shadow-drill .label {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--accent);
+    margin-bottom: 6px;
+  }
+  .shadow-drill .target {
+    font-size: 14px;
+    line-height: 1.45;
+    margin-bottom: 8px;
+  }
+  .shadow-drill .mini {
+    font-size: 11px;
+    color: var(--sub);
+    margin-bottom: 8px;
+  }
+  .shadow-drill .actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
+  }
+  .shadow-drill button {
+    background: #fff;
+    border: 1px solid #d4cec3;
+    border-radius: 12px;
+    padding: 9px 8px;
+    font-size: 12px;
+    cursor: pointer;
+    touch-action: manipulation;
+    -webkit-appearance: none;
+    appearance: none;
+    font-family: inherit;
+  }
+  .shadow-drill .next-shadow {
+    grid-column: 1 / -1;
+    background: var(--accent);
+    color: #fff;
+    border-color: var(--accent);
+    font-weight: 700;
+  }
+
   .replay-bar {
     display: flex; gap: 6px; justify-content: center; margin-bottom: 6px;
     flex-wrap: wrap;
@@ -373,6 +424,7 @@ let state = {
   score: 0, total: 0,
   rate: 0.95,
   showJa: false, // デフォルトは日本語非表示
+  audioStarted: false, // iOS Safari対策: ユーザー操作後に会話音声を開始
 };
 
 backBtn.onclick = () => {
@@ -451,7 +503,9 @@ function renderChat() {
   state.log.forEach(m => appendMessage(m, false));
   scrollBottom();
   setupAutoScroll();
-  proceed();
+  const inputArea = document.getElementById('inputArea');
+  if (!state.audioStarted) showStartHold(inputArea);
+  else proceed();
 }
 
 function appendMessage(m, addToState = true) {
@@ -464,7 +518,7 @@ function appendMessage(m, addToState = true) {
   row.innerHTML = `
     <div class="msg ${m.speaker}">
       <div class="top-actions">
-        ${m.speaker === 'npc' ? `<button class="icon-btn play">🔊 Play</button>` : ''}
+        <button class="icon-btn play">🔊 Play</button>
         <button class="icon-btn translate">訳</button>
       </div>
       <span class="en">${m.en}</span>
@@ -540,8 +594,94 @@ function setupAutoScroll() {
   window._inputObserver = ro;
 }
 
+
+/** 会話開始前の音声アンロック画面。iPhone/Safariでは最初の音声が鳴らないことがあるため、必ずタップ開始にする。 */
+function showStartHold(inputArea) {
+  inputArea.innerHTML = `
+    <div class="finish-hint">最初の会話音声を確実に鳴らすため、下のボタンをタップして開始</div>
+    <button id="startConversation" class="finish-next-btn">▶ 音声を有効にして開始</button>
+  `;
+  document.getElementById('startConversation').onclick = async () => {
+    warmUpTTS();
+    state.audioStarted = true;
+    inputArea.innerHTML = '<div class="hint">Starting...</div>';
+    await new Promise(r => setTimeout(r, 80));
+    proceed();
+  };
+}
+
+function wordCount(text) {
+  return (text || '').replace(/[.,!?;:]/g, '').trim().split(/\s+/).filter(Boolean).length;
+}
+
+function stageNumberFromId(stage) {
+  const m = String(stage && stage.id || '').match(/st(\d+)/);
+  return m ? Number(m[1]) : 1;
+}
+
+/** 10歳ネイティブに近づくため、短い正解文を少し長い自然文へ拡張する練習文を作る。 */
+function buildLevelUpLine(base, stage) {
+  const n = stageNumberFromId(stage);
+  const wc = wordCount(base);
+  if (wc >= 10) return base;
+
+  // すでに質問文なら、確認・理由づけを足して自然に長くする
+  if (/\?$/.test(base)) {
+    if (n <= 2) return `${base} I just want to make sure I understand.`;
+    if (n === 3) return `${base} I just want to make sure I understood correctly.`;
+    return `${base} I want to handle this clearly and avoid any confusion.`;
+  }
+
+  // お礼だけの短文は、具体的なお礼に伸ばす
+  if (/^(thanks|thank you|thank you so much|thanks so much)[.!]?$/i.test(base.trim())) {
+    if (n <= 2) return `Thank you so much for your help. I really appreciate it.`;
+    return `Thank you so much for helping me with this. I really appreciate it.`;
+  }
+
+  // 相づち・短い返答は、確認文を足す
+  if (wc <= 4) {
+    if (n === 1) return `${base} That's all for now, thank you.`;
+    if (n === 2) return `${base} Could you help me with that, please?`;
+    if (n === 3) return `${base} I just want to make sure I understood correctly.`;
+    if (n === 4) return `${base} If possible, could you explain the next step?`;
+    return `${base} I want to handle this clearly and avoid any confusion.`;
+  }
+
+  // 5〜9語の文は、理由・確認・感情を足す
+  if (n <= 2) return `${base} Could you help me with that, please?`;
+  if (n === 3) return `${base} I just want to make sure I understood correctly.`;
+  if (n === 4) return `${base} If possible, could you explain the next step?`;
+  return `${base} I want to handle this clearly and avoid any confusion.`;
+}
+
+function showShadowDrill(inputArea, baseLine, levelUpLine, stage) {
+  return new Promise((resolve) => {
+    const targetWords = wordCount(levelUpLine);
+    inputArea.innerHTML = `
+      <div class="shadow-drill">
+        <div class="label">🎧 Shadowing + 10-word speaking practice</div>
+        <div class="target"><b>Base:</b> ${baseLine}</div>
+        <div class="target"><b>Level up:</b> ${levelUpLine}</div>
+        <div class="mini">目安: ${targetWords} words / 音声を聞いて、同じスピードで3回声に出す</div>
+        <div class="actions">
+          <button id="playBase">🔊 Base</button>
+          <button id="playLevelUp">🔊 Level up</button>
+          <button id="playSlowLevelUp">🐢 Slow</button>
+          <button id="nextAfterShadow" class="next-shadow">練習したので次へ →</button>
+        </div>
+      </div>
+    `;
+    document.getElementById('playBase').onclick = () => speak(baseLine, { rate: state.rate });
+    document.getElementById('playLevelUp').onclick = () => speak(levelUpLine, { rate: state.rate });
+    document.getElementById('playSlowLevelUp').onclick = () => speak(levelUpLine, { rate: 0.65 });
+    document.getElementById('nextAfterShadow').onclick = () => resolve();
+    requestAnimationFrame(() => scrollBottom());
+  });
+}
+
 async function proceed() {
   const found = findSituation(state.situationId);
+  const stage = found.stage;
   const sit = found.situation;
   const inputArea = document.getElementById('inputArea');
   if (state.turnIdx >= sit.dialogue.length) {
@@ -598,7 +738,8 @@ async function proceed() {
         if (correct) state.score++;
         appendMessage({ speaker: 'you', en: correctAns, ja: turn.ja });
         await speak(correctAns, { rate: state.rate });
-        await new Promise(r => setTimeout(r, 400));
+        const levelUpLine = buildLevelUpLine(correctAns, stage);
+        await showShadowDrill(inputArea, correctAns, levelUpLine, stage);
         state.turnIdx++;
         proceed();  // proceed()入口で完走判定して「次へ」ホールドへ遷移する
       };
@@ -732,7 +873,7 @@ function showEnded(inputArea) {
   `;
   document.getElementById('again').onclick = () => navigate('chat', {
     situationId: state.situationId,
-    turnIdx: 0, log: [], score: 0, total: 0
+    turnIdx: 0, log: [], score: 0, total: 0, audioStarted: false
   });
   document.getElementById('other').onclick = () => location.href = 'index.html';
 }
@@ -742,7 +883,7 @@ function showEnded(inputArea) {
   const params = new URLSearchParams(location.search);
   const l = params.get('l');
   if (l && findSituation(l)) {
-    navigate('chat', { situationId: l, turnIdx: 0, log: [], score: 0, total: 0 });
+    navigate('chat', { situationId: l, turnIdx: 0, log: [], score: 0, total: 0, audioStarted: false });
     return;
   }
   render();

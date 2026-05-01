@@ -6,11 +6,11 @@
  *   - speaker: 'npc' (相手) または 'you' (自分)
  *   - en: 英語
  *   - ja: 日本語訳 (ボタンで表示する用)
- *   - choices: 自分のターンのみ。3択。choices[0] が正解。
+ *   - choices: 自分のターンのみ。基本3択。画面側で不足分を自動補完して4択表示。choices[0] が正解。
  *
  * 設計:
  *   5ステージ × 5シュチュエーション = 25会話
- *   レベルが上がるほどターン数が大幅に増える
+ *   レベルが上がるほどターン数が大幅に増える。さらに画面側でシャドーイングと10語前後の発話練習を追加。
  *   - Stage 1 (Lv  1-20): 入門      6-8   往復
  *   - Stage 2 (Lv 21-40): 初級      10-12 往復
  *   - Stage 3 (Lv 41-60): 中級      14-16 往復
@@ -890,11 +890,28 @@ const STAGES = [
 ];
 
 /* =====================================================
-   音声 (TTS) ヘルパー — iOS Safari対応 + 高品質音声優先版
-   - voices読み込みが非同期なのを考慮して await で取得
-   - Premium / Enhanced / Siri 等の高品質音声を自動選択
-   - ユーザーが選んだ声を localStorage に保存して優先
+   音声ヘルパー — 録音済みm4aファイル優先 + TTSフォールバック
+   - audio/ 配下に Mac の Premium 音声で生成された m4a ファイルがある
+   - audio/manifest.json でテキスト→ファイルパスのマッピング
+   - ファイルがあればそれを再生 (高品質)、なければ Web Speech API
+   - localStorage で速度等は保持
 ===================================================== */
+let _audioManifest = null;
+let _audioManifestLoaded = false;
+async function _loadManifest() {
+  if (_audioManifestLoaded) return _audioManifest;
+  _audioManifestLoaded = true;
+  try {
+    const res = await fetch('audio/manifest.json', { cache: 'force-cache' });
+    if (res.ok) {
+      _audioManifest = await res.json();
+    }
+  } catch (e) { /* manifest なしならTTSフォールバック */ }
+  return _audioManifest;
+}
+// ページ読み込み時にプリフェッチ
+if (typeof window !== 'undefined') _loadManifest();
+
 const VOICE_PREF_KEY = 'tts_voice_pref';
 let _voicesCache = null;
 let _ttsWarmedUp = false;
@@ -1012,10 +1029,44 @@ function warmUpTTS() {
   } catch (e) { /* noop */ }
 }
 
+// 直前のオーディオを止めるため、グローバルに参照を持つ
+let _currentAudio = null;
+
+/** 録音済みm4aファイルで再生を試みる。成功なら true を返す */
+async function _speakFromFile(text, rate) {
+  const manifest = await _loadManifest();
+  if (!manifest) return false;
+  const path = manifest[text];
+  if (!path) return false;
+  // 既存の音声を止める
+  if (_currentAudio) {
+    try { _currentAudio.pause(); _currentAudio.src = ''; } catch (e) {}
+    _currentAudio = null;
+  }
+  if ('speechSynthesis' in window) {
+    try { window.speechSynthesis.cancel(); } catch (e) {}
+  }
+  return new Promise((resolve) => {
+    const audio = new Audio(path);
+    _currentAudio = audio;
+    audio.playbackRate = rate;
+    let resolved = false;
+    const done = (ok) => { if (!resolved) { resolved = true; resolve(ok); } };
+    audio.onended = () => done(true);
+    audio.onerror = () => done(false);
+    // 万一 onended が発火しないケースのフォールバック
+    setTimeout(() => done(true), 30000);
+    audio.play().catch(() => done(false));
+  });
+}
+
 async function speak(text, { rate = 0.95 } = {}) {
+  // 録音ファイルが使えるならそれを優先 (高品質)
+  const ok = await _speakFromFile(text, rate);
+  if (ok) return;
+  // フォールバック: ブラウザTTS
   if (!('speechSynthesis' in window)) return;
   warmUpTTS();
-  // 既存の発話を止める。iOS では cancel 直後の speak が無音になることがあるため少し待つ
   if (window.speechSynthesis.speaking || window.speechSynthesis.pending) {
     window.speechSynthesis.cancel();
     await new Promise(r => setTimeout(r, 80));
@@ -1035,7 +1086,6 @@ async function speak(text, { rate = 0.95 } = {}) {
     const done = () => { if (!resolved) { resolved = true; resolve(); } };
     u.onend = done;
     u.onerror = done;
-    // iOS ではまれに onend が発火しないので fallback タイマー
     const estimatedMs = Math.max(800, text.length * 70 / rate);
     setTimeout(done, estimatedMs + 1500);
     try {
@@ -1047,6 +1097,10 @@ async function speak(text, { rate = 0.95 } = {}) {
 }
 
 function stopSpeaking() {
+  if (_currentAudio) {
+    try { _currentAudio.pause(); _currentAudio.src = ''; } catch (e) {}
+    _currentAudio = null;
+  }
   if ('speechSynthesis' in window) {
     try { window.speechSynthesis.cancel(); } catch (e) { /* noop */ }
   }
