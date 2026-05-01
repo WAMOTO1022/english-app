@@ -1771,7 +1771,7 @@ const Store = {
 };
 
 const MAX_LEVEL = 100;
-const PROGRESS_KEY = 'curriculum_v2';
+const PROGRESS_KEY = 'curriculum_v15_locked_progression';
 
 const Curriculum = {
   defaultProgress() { return { situations: {}, attempts: 0, lastSituationId: null }; },
@@ -1807,8 +1807,27 @@ const Curriculum = {
   },
 
   isStageUnlocked(stageIdx) {
-    // All stages are open while testing high-level content.
+    // Stage 1 is always open. Higher stages open only after all earlier stages are cleared.
+    if (stageIdx <= 0) return true;
+    for (let i = 0; i < stageIdx; i++) {
+      if (!this.isStageCleared(STAGES[i])) return false;
+    }
     return true;
+  },
+
+  stageIndexForSituation(sitId) {
+    return STAGES.findIndex(stage => stage.situations.some(s => s.id === sitId));
+  },
+
+  isSituationUnlocked(sitId) {
+    const idx = this.stageIndexForSituation(sitId);
+    return idx >= 0 && this.isStageUnlocked(idx);
+  },
+
+  lockedStageMessage(stageIdx) {
+    if (stageIdx <= 0) return '';
+    const prev = STAGES[stageIdx - 1];
+    return `Clear ${prev.title} first to unlock this stage.`;
   },
 
   isStageCleared(stage) {
@@ -1879,11 +1898,11 @@ const Curriculum = {
   },
 
   milestones: [
-    { lv: 20,  msg: '入門ステージクリア!基本の一言が身についた' },
-    { lv: 40,  msg: '初級クリア!短い会話が成立する' },
-    { lv: 60,  msg: '中級到達!旅行の標準シーンOK' },
-    { lv: 80,  msg: '上級者!連結した長い会話を切り抜ける' },
-    { lv: 100, msg: '🎉 マスター達成!超長文会話まで対応!' }
+    { lv: 20,  label: '入門ステージクリア!基本の一言が身についた' },
+    { lv: 40,  label: '初級クリア!短い会話が成立する' },
+    { lv: 60,  label: '中級到達!旅行の標準シーンOK' },
+    { lv: 80,  label: '上級者!連結した長い会話を切り抜ける' },
+    { lv: 100, label: '🎉 マスター達成!超長文会話まで対応!' }
   ],
 
   reset() { this.save(this.defaultProgress()); }

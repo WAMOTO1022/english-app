@@ -273,7 +273,7 @@
 
 <div id="dashboard"></div>
 
-<script src="data.js?v14-title-from-data-20260501-1"></script>
+<script src="data.js?v15-locked-progression-20260501-1"></script>
 <script>
 const dash = document.getElementById('dashboard');
 
@@ -352,7 +352,7 @@ function render() {
   `;
 
   // ===== ステージ一覧 =====
-  html += `<div class="section">🎯 Stages (all unlocked)</div>`;
+  html += `<div class="section">🎯 Stages</div>`;
   STAGES.forEach((stage, idx) => {
     const unlocked = Curriculum.isStageUnlocked(idx);
     const prog = Curriculum.stageProgress(stage);
@@ -364,15 +364,15 @@ function render() {
             <div class="emoji">${stage.emoji}</div>
             <div>
               <div class="name">${stage.title}</div>
-              <div class="ja">Open</div>
+              <div class="ja">${unlocked ? 'Open' : 'Locked'}</div>
             </div>
             <div class="lv-range">Lv ${stage.levelRange[0]}-${stage.levelRange[1]}</div>
           </div>
-          <div class="desc">Conversation practice</div>
+          <div class="desc">${unlocked ? 'Conversation practice' : Curriculum.lockedStageMessage(idx)}</div>
           <span class="turn-hint">📏 ${stageTurns(stage)}</span>
           <div class="stage-progress"><div style="width:${pct}%"></div></div>
           <div class="progress-text">${prog.cleared}/${prog.total} cleared · ${prog.mastered}/${prog.total} mastered</div>
-          
+          ${!unlocked ? `<div class="lock-overlay">🔒 Clear the previous stage first</div>` : ''}
         </div>
         ${unlocked ? stage.situations.map(sit => {
           const stars = Curriculum.starsFor(sit.id);
