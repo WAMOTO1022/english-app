@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<title>C: チャット会話型</title>
+<title>English Chat</title>
 <style>
   :root {
     --bg: #ece5dd;
@@ -401,13 +401,13 @@
   <div class="avatar" id="hAvatar">💬</div>
   <div class="header-info">
     <div class="name" id="hName">English Chat</div>
-    <div class="status" id="hStatus">話したい場面を選んでください</div>
+    <div class="status" id="hStatus">Choose a situation</div>
   </div>
   <div class="header-actions" id="hActions"></div>
 </header>
 <div id="root" style="flex:1;display:flex;flex-direction:column;min-height:0;"></div>
 
-<script src="data.js"></script>
+<script src="data.js?v14-title-from-data-20260501-1"></script>
 <script>
 const root = document.getElementById('root');
 const hAvatar = document.getElementById('hAvatar');
@@ -423,9 +423,14 @@ let state = {
   log: [],
   score: 0, total: 0,
   rate: 0.95,
-  showJa: false, // デフォルトは日本語非表示
-  audioStarted: false, // iOS Safari対策: ユーザー操作後に会話音声を開始
+  showJa: false, // Translation hidden by default
+  audioStarted: false, // Enable audio after user tap for iOS Safari
+  reviewItems: []
 };
+
+function sitName(sit) { return sit.title || 'Conversation'; }
+function sitDesc(sit) { return sit.situation || 'Conversation practice'; }
+
 
 backBtn.onclick = () => {
   stopSpeaking();
@@ -447,13 +452,13 @@ function renderList() {
   hAvatar.textContent = '💬';
   hAvatar.style.background = 'rgba(255,255,255,0.25)';
   hName.textContent = 'English Chat';
-  hStatus.textContent = 'ホームに戻ってシュチュエーションを選んでください';
+  hStatus.textContent = 'Choose a situation from Home';
   hActions.innerHTML = '';
   root.innerHTML = `
     <div class="scene-select" style="text-align:center;padding-top:40px;">
-      <h2>シュチュエーションを選んでください</h2>
-      <p>ホームから選んでスタートしてください</p>
-      <button onclick="location.href='index.html'" style="margin-top:20px;padding:12px 24px;background:#7b4fd6;color:#fff;border:0;border-radius:10px;font-weight:700;cursor:pointer;">🏠 ホームへ</button>
+      <h2>Choose a situation</h2>
+      <p>Start from Home.</p>
+      <button onclick="location.href='index.html'" style="margin-top:20px;padding:12px 24px;background:#7b4fd6;color:#fff;border:0;border-radius:10px;font-weight:700;cursor:pointer;">🏠 Home</button>
     </div>
   `;
 }
@@ -465,8 +470,8 @@ function renderChat() {
   const sit = found.situation;
   hAvatar.textContent = sit.icon;
   hAvatar.style.background = stage.color;
-  hName.textContent = sit.title;
-  hStatus.textContent = `${stage.emoji} ${stage.title} ・ ${sit.situation}`;
+  hName.textContent = sitName(sit);
+  hStatus.textContent = `${stage.emoji} ${stage.title} · ${sitDesc(sit)}`;
   hActions.innerHTML = `
     <button id="toggleJa" class="${state.showJa?'on':''}">JP ${state.showJa?'ON':'OFF'}</button>
     <button id="toggleSpeed" class="${state.rate<0.9?'on':''}">${state.rate<0.9?'Slow':'Normal'}</button>
@@ -492,7 +497,7 @@ function renderChat() {
 
   root.innerHTML = `
     <div class="messages" id="messages">
-      <div class="day-wrap"><span class="day-banner">${stage.emoji} ${stage.title} — ${sit.title} (${sit.dialogue.length}ターン)</span></div>
+      <div class="day-wrap"><span class="day-banner">${stage.emoji} ${stage.title} — ${sitName(sit)} (${sit.dialogue.length} turns)</span></div>
       <div class="messages-flex" id="mflex"></div>
       <div id="typing" style="display:none;text-align:left;margin:6px 0;">
         <div class="typing"><span></span><span></span><span></span></div>
@@ -549,36 +554,30 @@ function scrollBottom() {
   if (m) m.scrollTop = m.scrollHeight;
 }
 
-/* 4択保証ヘルパー: 既存の3択 [correct, wrong1, wrong2] を 4 択に拡張する。
- * 全シュチュエーションの誤答プールから、似た長さで未使用のものをランダムで1つ追加。
- * 異なる場面の不自然英語が混ざるが、明らかな誤りなので学習効果を損なわない。
- */
-let _wrongPoolCache = null;
-function _buildWrongPool() {
-  if (_wrongPoolCache) return _wrongPoolCache;
-  const pool = [];
-  STAGES.forEach(s => s.situations.forEach(sit => {
-    sit.dialogue.forEach(t => {
-      if (t.choices && t.choices.length > 1) {
-        for (let i = 1; i < t.choices.length; i++) pool.push(t.choices[i]);
-      }
-    });
-  }));
-  _wrongPoolCache = pool;
-  return pool;
+async function safeSpeak(text, opts) {
+  try { await speak(text, opts); }
+  catch (e) { console.warn('speech failed, continuing', e); }
 }
+
+/* 4-choice helper.
+ * The new curriculum should already provide 4 natural English choices in data.js.
+ * This fallback only adds polished natural options if an older item still has fewer than 4 choices.
+ */
+const FALLBACK_CHOICES = [
+  'I need a little more time before I decide.',
+  'Could you explain that one more time?',
+  'I should check with my family first.',
+  'That sounds helpful, but I am not ready yet.'
+];
 function ensureFourChoices(originalChoices) {
   if (!originalChoices || originalChoices.length === 0) return originalChoices;
   if (originalChoices.length >= 4) return originalChoices.slice(0, 4);
-  const correct = originalChoices[0];
-  const existing = new Set(originalChoices);
-  const pool = _buildWrongPool();
-  const targetLen = correct.length;
-  // 長さが近く、既存と重複しないものを候補に
-  const candidates = pool.filter(w => !existing.has(w) && Math.abs(w.length - targetLen) < 25);
-  if (candidates.length === 0) return originalChoices;
-  const pick = candidates[Math.floor(Math.random() * candidates.length)];
-  return [...originalChoices, pick];
+  const out = originalChoices.slice();
+  for (const c of FALLBACK_CHOICES) {
+    if (out.length >= 4) break;
+    if (!out.includes(c)) out.push(c);
+  }
+  return out;
 }
 
 /* messages のサイズが変わるたびに最下部へスクロールする監視を仕込む */
@@ -598,8 +597,8 @@ function setupAutoScroll() {
 /** 会話開始前の音声アンロック画面。iPhone/Safariでは最初の音声が鳴らないことがあるため、必ずタップ開始にする。 */
 function showStartHold(inputArea) {
   inputArea.innerHTML = `
-    <div class="finish-hint">最初の会話音声を確実に鳴らすため、下のボタンをタップして開始</div>
-    <button id="startConversation" class="finish-next-btn">▶ 音声を有効にして開始</button>
+    <div class="finish-hint">Tap once to enable audio and start the conversation.</div>
+    <button id="startConversation" class="finish-next-btn">▶ Start with audio</button>
   `;
   document.getElementById('startConversation').onclick = async () => {
     warmUpTTS();
@@ -659,15 +658,15 @@ function showShadowDrill(inputArea, baseLine, levelUpLine, stage) {
     const targetWords = wordCount(levelUpLine);
     inputArea.innerHTML = `
       <div class="shadow-drill">
-        <div class="label">🎧 Shadowing + 10-word speaking practice</div>
+        <div class="label">🎧 Shadowing + natural speaking practice</div>
         <div class="target"><b>Base:</b> ${baseLine}</div>
         <div class="target"><b>Level up:</b> ${levelUpLine}</div>
-        <div class="mini">目安: ${targetWords} words / 音声を聞いて、同じスピードで3回声に出す</div>
+        <div class="mini">Target: ${targetWords} words. Listen, shadow, then say it 3 times naturally.</div>
         <div class="actions">
           <button id="playBase">🔊 Base</button>
           <button id="playLevelUp">🔊 Level up</button>
           <button id="playSlowLevelUp">🐢 Slow</button>
-          <button id="nextAfterShadow" class="next-shadow">練習したので次へ →</button>
+          <button id="nextAfterShadow" class="next-shadow">Next →</button>
         </div>
       </div>
     `;
@@ -685,8 +684,8 @@ async function proceed() {
   const sit = found.situation;
   const inputArea = document.getElementById('inputArea');
   if (state.turnIdx >= sit.dialogue.length) {
-    // 全ターン完了 — 結果画面に直行せず「次へ」ホールドへ
-    showFinishedHold(inputArea);
+    // 全ターンDone — 結果画面に直行せず「次へ」ホールドへ
+    showReview(inputArea);
     return;
   }
   const turn = sit.dialogue[state.turnIdx];
@@ -696,7 +695,7 @@ async function proceed() {
     await new Promise(r => setTimeout(r, 700));
     showTyping(false);
     appendMessage({ speaker: 'npc', en: turn.en, ja: turn.ja });
-    await speak(turn.en, { rate: state.rate });
+    await safeSpeak(turn.en, { rate: state.rate });
     state.turnIdx++;
     proceed();
   } else {
@@ -708,7 +707,7 @@ async function proceed() {
       <div class="replay-bar">
         <button id="replayLast">🔊 Replay</button>
         <button id="replaySlow">🐢 Slow</button>
-        <button id="hintTranslate">訳を見る</button>
+        <button id="hintTranslate">訳</button>
       </div>
       <div class="hint-row">
         <span class="hint">Your turn — choose a reply</span>
@@ -737,11 +736,11 @@ async function proceed() {
         state.total++;
         if (correct) state.score++;
         appendMessage({ speaker: 'you', en: correctAns, ja: turn.ja });
-        await speak(correctAns, { rate: state.rate });
+        await safeSpeak(correctAns, { rate: state.rate });
         const levelUpLine = buildLevelUpLine(correctAns, stage);
-        await showShadowDrill(inputArea, correctAns, levelUpLine, stage);
+        state.reviewItems.push({ base: correctAns, levelUp: levelUpLine, ja: turn.ja });
         state.turnIdx++;
-        proceed();  // proceed()入口で完走判定して「次へ」ホールドへ遷移する
+        proceed();
       };
     });
   }
@@ -752,7 +751,7 @@ function openVoicePicker() {
   const voices = getEnglishVoicesSorted();
   const currentPref = (() => { try { return localStorage.getItem(VOICE_PREF_KEY) || ''; } catch { return ''; } })();
   if (voices.length === 0) {
-    alert('利用可能な英語音声が見つかりません。\nまずどこかをタップして音声システムを起動してください。');
+    alert('No English voices found.\nTap once in the app to start the audio system, then try again.');
     return;
   }
   const tierLabel = (v) => {
@@ -765,16 +764,16 @@ function openVoicePicker() {
   modal.className = 'voice-modal';
   modal.innerHTML = `
     <div class="voice-modal-inner" onclick="event.stopPropagation()">
-      <h3>🎙️ 音声を選ぶ</h3>
-      <p class="desc">高品質な音声 (Premium / Enhanced) を選ぶとより自然です</p>
-      <div class="help-link" id="showVoiceHelp">📲 iPhoneでもっと良い音声を入れる方法</div>
+      <h3>🎙️ Choose a voice</h3>
+      <p class="desc">Premium / Enhanced voices sound more natural.</p>
+      <div class="help-link" id="showVoiceHelp">📲 How to add better voices on iPhone</div>
       <div class="help-box" id="voiceHelp" style="display:none;">
-        <b>iPhone側の設定 (一度だけ):</b>
+        <b>iPhone settings (one time):</b>
         <ol>
-          <li>設定 → アクセシビリティ → 読み上げコンテンツ</li>
-          <li>「声」 → 「英語」</li>
-          <li>「拡張」または「プレミアム」と書かれた音声を <b>ダウンロード</b><br>(おすすめ: <b>Ava (Enhanced)</b> / <b>Tom (Enhanced)</b> / <b>Allison (Enhanced)</b>)</li>
-          <li>このアプリに戻ってこの画面を開き直すと選択肢に出ます</li>
+          <li>Settings → Accessibility → Spoken Content</li>
+          <li>Voices → English</li>
+          <li>Download an <b>Enhanced</b> or <b>Premium</b> voice.<br>Recommended: <b>Ava</b>, <b>Tom</b>, or <b>Allison</b>.</li>
+          <li>Come back to this app and reopen this screen.</li>
         </ol>
       </div>
       ${voices.map(v => {
@@ -784,11 +783,11 @@ function openVoicePicker() {
           <div class="voice-row ${active?'active':''}" data-name="${v.name.replace(/"/g, '&quot;')}">
             <span class="voice-tier ${tier.c}">${tier.t}</span>
             <div class="voice-name">${v.name}<span class="meta">${v.lang}</span></div>
-            <button class="preview-btn">▶ 試聴</button>
+            <button class="preview-btn">▶ Preview</button>
           </div>
         `;
       }).join('')}
-      <button class="close-btn" id="closeVoice">完了</button>
+      <button class="close-btn" id="closeVoice">Done</button>
     </div>
   `;
   modal.onclick = () => modal.remove();
@@ -823,24 +822,37 @@ function openVoicePicker() {
   modal.querySelector('#closeVoice').onclick = () => modal.remove();
 }
 
-/** 完走直後 — 結果画面に行く前のホールド画面 (音声/訳の再確認用) */
-function showFinishedHold(inputArea) {
-  const lastNpc = [...state.log].reverse().find(m => m.speaker === 'npc');
-  const lastYou = [...state.log].reverse().find(m => m.speaker === 'you');
-  inputArea.innerHTML = `
-    <div class="replay-bar">
-      <button id="replayNpc">🔊 相手をもう一度</button>
-      <button id="replayYou">🔊 自分の最後の答え</button>
-      <button id="replaySlow">🐢 ゆっくり</button>
-    </div>
-    <div class="finish-hint">会話おわり!　音声・訳を確認したら 次へ をタップ</div>
-    <button id="goNext" class="finish-next-btn">次へ →</button>
-  `;
-  document.getElementById('replayNpc').onclick = () => lastNpc && speak(lastNpc.en, { rate: state.rate });
-  document.getElementById('replayYou').onclick = () => lastYou && speak(lastYou.en, { rate: state.rate });
-  document.getElementById('replaySlow').onclick = () => lastNpc && speak(lastNpc.en, { rate: 0.6 });
-  document.getElementById('goNext').onclick = () => showEnded(inputArea);
-  requestAnimationFrame(() => scrollBottom());
+/** End-of-situation review. No interruption during the chat; review happens only after the full situation. */
+function showReview(inputArea) {
+  const items = state.reviewItems || [];
+  if (!items.length) { showEnded(inputArea); return; }
+  let idx = 0;
+  const renderReview = () => {
+    const item = items[idx];
+    inputArea.innerHTML = `
+      <div class="shadow-drill">
+        <div class="label">🎧 Final review ${idx + 1} / ${items.length}</div>
+        <div class="target"><b>Base:</b> ${item.base}</div>
+        <div class="target"><b>Level up:</b> ${item.levelUp}</div>
+        <div class="mini">Listen → shadow → say it without looking. Aim for a smooth, natural answer.</div>
+        <div class="actions">
+          <button id="playReviewBase">🔊 Base</button>
+          <button id="playReviewUp">🔊 Level up</button>
+          <button id="playReviewSlow">🐢 Slow</button>
+          <button id="reviewNext" class="next-shadow">${idx + 1 >= items.length ? 'Finish review →' : 'Next review →'}</button>
+        </div>
+      </div>
+    `;
+    document.getElementById('playReviewBase').onclick = () => speak(item.base, { rate: state.rate });
+    document.getElementById('playReviewUp').onclick = () => speak(item.levelUp, { rate: state.rate });
+    document.getElementById('playReviewSlow').onclick = () => speak(item.levelUp, { rate: 0.65 });
+    document.getElementById('reviewNext').onclick = () => {
+      if (idx + 1 >= items.length) showEnded(inputArea);
+      else { idx++; renderReview(); }
+    };
+    requestAnimationFrame(() => scrollBottom());
+  };
+  renderReview();
 }
 
 function showEnded(inputArea) {
@@ -851,8 +863,8 @@ function showEnded(inputArea) {
   const result = Curriculum.awardSituation(state.situationId, state.score, state.total);
   const starStr = [1,2,3].map(n => n <= result.stars ? '★' : '<span class="empty">★</span>').join('');
   const starsGainedMsg = result.starsGained > 0
-    ? `<div style="font-size:12px;color:var(--good);font-weight:700;">+${result.starsGained} 新しい星!</div>`
-    : '<div style="font-size:11px;color:var(--sub);">星はキープ (前回が最高記録)</div>';
+    ? `<div style="font-size:12px;color:var(--good);font-weight:700;">+${result.starsGained} new star(s)!</div>`
+    : '<div style="font-size:11px;color:var(--sub);">Best score kept.</div>';
 
   inputArea.innerHTML = `
     <div class="ended">
@@ -863,17 +875,17 @@ function showEnded(inputArea) {
       <div class="stars-row">${starStr}</div>
       ${starsGainedMsg}
       <div class="xp-box">
-        <div style="font-size:11px;color:var(--sub);">現在のレベル</div>
+        <div style="font-size:11px;color:var(--sub);">Current level</div>
         <div class="xp-num">Lv.${result.newLevel}</div>
         <div style="font-size:11px;color:var(--sub);">/ 100</div>
       </div>
-      <button id="again">もう一度この会話 (3星を狙う)</button>
-      <button id="other" class="outline">ホームに戻る</button>
+      <button id="again">Try this conversation again</button>
+      <button id="other" class="outline">Back to Home</button>
     </div>
   `;
   document.getElementById('again').onclick = () => navigate('chat', {
     situationId: state.situationId,
-    turnIdx: 0, log: [], score: 0, total: 0, audioStarted: false
+    turnIdx: 0, log: [], score: 0, total: 0, audioStarted: false, reviewItems: []
   });
   document.getElementById('other').onclick = () => location.href = 'index.html';
 }
@@ -883,7 +895,7 @@ function showEnded(inputArea) {
   const params = new URLSearchParams(location.search);
   const l = params.get('l');
   if (l && findSituation(l)) {
-    navigate('chat', { situationId: l, turnIdx: 0, log: [], score: 0, total: 0, audioStarted: false });
+    navigate('chat', { situationId: l, turnIdx: 0, log: [], score: 0, total: 0, audioStarted: false, reviewItems: [] });
     return;
   }
   render();

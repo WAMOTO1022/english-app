@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<title>旅行英会話マスター</title>
+<title>English Conversation Master</title>
 <style>
   :root {
     --bg: #f4f1ea;
@@ -267,15 +267,19 @@
 </head>
 <body>
 <header>
-  <h1>🧳 旅行英会話マスター</h1>
-  <p class="sub">5ステージ・25シュチュエーション。Lv 100で会話の超長文まで対応!</p>
+  <h1>🧳 English Conversation Master</h1>
+  <p class="sub">5 stages · 25 situations · Daily listening and speaking practice.</p>
 </header>
 
 <div id="dashboard"></div>
 
-<script src="data.js"></script>
+<script src="data.js?v14-title-from-data-20260501-1"></script>
 <script>
 const dash = document.getElementById('dashboard');
+
+function sitName(sit) { return sit.title || 'Conversation'; }
+function sitDesc(sit) { return sit.situation || 'Conversation practice'; }
+function stageTurns(stage) { return stage.turnHint || 'conversation practice'; }
 
 function render() {
   const lv = Curriculum.level();
@@ -301,12 +305,12 @@ function render() {
         <div class="tier-name">
           <div class="emoji">${curTier.emoji}</div>
           ${curTier.title}<br>
-          <span style="opacity:0.85;font-size:11px;">${curTier.ja}</span>
+          <span style="opacity:0.85;font-size:11px;">Daily practice</span>
         </div>
       </div>
       <div class="progress-wrap"><div class="progress" style="width:${lvPct}%"></div></div>
       <div class="stats">
-        ⭐ ${stars.got} / ${stars.max} 星 ・ Lv.${lv === MAX_LEVEL ? '100 達成🎉' : `${MAX_LEVEL} まで進行中`}
+        ⭐ ${stars.got} / ${stars.max} stars · Lv.${lv === MAX_LEVEL ? '100 complete 🎉' : `toward ${MAX_LEVEL}`}
       </div>
     </div>
   `;
@@ -317,40 +321,38 @@ function render() {
     const ls = rec.item.situation;
     html += `
       <div class="recommend" id="recCard">
-        <span class="label">今日のおすすめ</span>
-        <div class="title">${ls.icon} ${ls.title}</div>
-        <div class="reason">${rec.subtitle}</div>
-        <button class="start-btn">▶ ${rec.reason}</button>
+        <span class="label">Today's pick</span>
+        <div class="title">${ls.icon} ${sitName(ls)}</div>
+        <div class="reason">${sitDesc(ls)}</div>
+        <button class="start-btn">▶ Start</button>
       </div>
     `;
   }
 
-  // ===== 学習ガイド =====
+  // ===== Learning guide =====
   html += `
     <details class="guide" id="guideHow">
-      <summary>📖 ゴール達成のための学習法 (タップで開く)</summary>
+      <summary>📖 How to study</summary>
       <div class="guide-body">
         <p style="margin:0 0 8px;font-size:12px;color:var(--sub);">
-          英検3級レベルから「旅行で英語が通じる」状態になるための具体的なステップです。
-          <b>1日10〜15分、音声→選択→シャドーイング→10語練習を目安に。</b>
+          Daily flow: listen → choose → speak → final review. Keep translations hidden except the 「訳」 button.
+          <b>Do 1 new situation + 2 reviews per day.</b>
         </p>
         <ol>
-          <li><b>ステージ順に進む:</b> 入門→マスターと順に。前ステージが完了しないと次は解放されない。</li>
-          <li><b>聞く→まねる:</b> まず🔊で音声を流して耳を慣らし、BaseとLevel up文を3回ずつ声に出す。</li>
-          <li><b>意味を確認:</b> 吹き出しの「訳」ボタンで意味を確認。1回確認したらまた英語だけで聞く。</li>
-          <li><b>3択で答える:</b> 自分のターンで正解を選ぶ。間違えても良い。正解音声を聞いて口で真似する。</li>
-          <li><b>同じ会話を3回:</b> 1回目=理解、2回目=予測、3回目=反射的に。3星(100%)を目指す。</li>
-          <li><b>毎日少しずつ:</b> 1日に新シュチュ1つ + 既習2つの復習。毎日続けることが最重要。</li>
-          <li><b>速度を上げる:</b> Normal速度で詰まらず答えられるようになったら本番想定で完走。</li>
+          <li><b>Listen first:</b> replay the other person's line until you can catch the sound.</li>
+          <li><b>Choose fast:</b> pick the natural reply without translating in your head.</li>
+          <li><b>Shadow:</b> copy the rhythm, speed, and intonation out loud.</li>
+          <li><b>Final review:</b> after the whole chat, practice the Base and Level up lines.</li>
+          <li><b>Repeat:</b> do the same situation three times until it feels automatic.</li>
         </ol>
-        <p style="margin:12px 0 4px;font-size:12px;color:var(--accent);font-weight:700;">📍 マイルストーン</p>
+        <p style="margin:12px 0 4px;font-size:12px;color:var(--accent);font-weight:700;">📍 Milestones</p>
         <ul class="milestone-list" id="milestoneList"></ul>
       </div>
     </details>
   `;
 
   // ===== ステージ一覧 =====
-  html += `<div class="section">🎯 ステージ (5段階・全25シュチュエーション)</div>`;
+  html += `<div class="section">🎯 Stages (all unlocked)</div>`;
   STAGES.forEach((stage, idx) => {
     const unlocked = Curriculum.isStageUnlocked(idx);
     const prog = Curriculum.stageProgress(stage);
@@ -362,22 +364,22 @@ function render() {
             <div class="emoji">${stage.emoji}</div>
             <div>
               <div class="name">${stage.title}</div>
-              <div class="ja">${stage.ja}</div>
+              <div class="ja">Open</div>
             </div>
-            <div class="lv-range">Lv ${stage.levelRange[0]}〜${stage.levelRange[1]}</div>
+            <div class="lv-range">Lv ${stage.levelRange[0]}-${stage.levelRange[1]}</div>
           </div>
-          <div class="desc">${stage.description}</div>
-          <span class="turn-hint">📏 ${stage.turnHint}</span>
+          <div class="desc">Conversation practice</div>
+          <span class="turn-hint">📏 ${stageTurns(stage)}</span>
           <div class="stage-progress"><div style="width:${pct}%"></div></div>
-          <div class="progress-text">${prog.cleared}/${prog.total} クリア ・ ${prog.mastered}/${prog.total} マスター(3星)</div>
-          ${!unlocked ? '<div class="lock-overlay">🔒 前のステージをクリアで解放</div>' : ''}
+          <div class="progress-text">${prog.cleared}/${prog.total} cleared · ${prog.mastered}/${prog.total} mastered</div>
+          
         </div>
         ${unlocked ? stage.situations.map(sit => {
           const stars = Curriculum.starsFor(sit.id);
           return `
             <div class="sit-row" data-id="${sit.id}">
               <div class="icon">${sit.icon}</div>
-              <div class="ttl">${sit.title}<div class="sub">${sit.situation}</div></div>
+              <div class="ttl">${sitName(sit)}<div class="sub">${sitDesc(sit)}</div></div>
               <div class="stars">${[1,2,3].map(n => n <= stars
                 ? '<span>★</span>'
                 : '<span class="empty">☆</span>').join('')}</div>
@@ -392,7 +394,7 @@ function render() {
   // ===== リセット =====
   html += `
     <div class="reset-zone">
-      <button id="resetBtn">進捗をリセット</button>
+      <button id="resetBtn">Reset progress</button>
     </div>
   `;
 
@@ -404,7 +406,7 @@ function render() {
     ms.innerHTML = Curriculum.milestones.map(m => `
       <li class="${lv >= m.lv ? 'done' : ''}">
         <span class="lv">Lv${m.lv}</span>
-        <span>${m.msg} ${lv >= m.lv ? '✓' : ''}</span>
+        <span>${m.label || 'Checkpoint'} ${lv >= m.lv ? '✓' : ''}</span>
       </li>
     `).join('');
   }
@@ -420,7 +422,7 @@ function render() {
     el.onclick = () => location.href = `pattern-c.html?l=${el.dataset.id}`;
   });
   document.getElementById('resetBtn').onclick = () => {
-    if (confirm('全ての進捗 (星・レベル) をリセットします。よろしいですか?')) {
+    if (confirm('Reset all progress?')) {
       Curriculum.reset();
       render();
     }

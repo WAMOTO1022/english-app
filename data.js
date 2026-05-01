@@ -1,916 +1,1523 @@
 /**
- * 旅行・日常英会話 ステージ別データ
- *
- * 構造:
- *   STAGES[*].situations[*].dialogue[*] = ターン
- *   - speaker: 'npc' (相手) または 'you' (自分)
- *   - en: 英語
- *   - ja: 日本語訳 (ボタンで表示する用)
- *   - choices: 自分のターンのみ。基本3択。画面側で不足分を自動補完して4択表示。choices[0] が正解。
- *
- * 設計:
- *   5ステージ × 5シュチュエーション = 25会話
- *   レベルが上がるほどターン数が大幅に増える。さらに画面側でシャドーイングと10語前後の発話練習を追加。
- *   - Stage 1 (Lv  1-20): 入門      6-8   往復
- *   - Stage 2 (Lv 21-40): 初級      10-12 往復
- *   - Stage 3 (Lv 41-60): 中級      14-16 往復
- *   - Stage 4 (Lv 61-80): 上級      22-26 往復
- *   - Stage 5 (Lv 81-100): マスター 30-34 往復
- *
- * 文体方針:
- *   - "please" の使いすぎを避け、ネイティブが自然に使う表現に
- *   - お願いは "Could I..." / "Can I get..." / "I'll have..." を多用
- *   - "thanks" を文末に置く軽い丁寧さも採用
+ * Native-style adult English curriculum
+ * Goal: understand and speak natural everyday adult English.
+ * Higher stages include longer but still realistic native-style turns.
+ * Script-only updates live in data.js. UI/flow updates live in index.html or pattern-c.html.
  */
 const STAGES = [
-  // ============================================================
-  // STAGE 1: 入門 (Lv 1-20) — 6〜8往復
-  // ============================================================
   {
-    id: 'st1', level: 1, levelRange: [1, 20],
-    title: 'Beginner', ja: '入門', emoji: '🌱', color: '#66bb6a',
-    description: '基本のひとこと。自然な英語に触れる',
-    turnHint: '6〜8往復',
-    situations: [
+    "id": "st1",
+    "level": 1,
+    "levelRange": [
+      1,
+      20
+    ],
+    "title": "基礎",
+    "ja": "基礎",
+    "emoji": "🌱",
+    "color": "#66bb6a",
+    "description": "短い日常フレーズで自然な会話に慣れる",
+    "turnHint": "5〜8語・短く自然に",
+    "situations": [
       {
-        id: 'st1s1', title: 'コーヒーを注文', icon: '☕',
-        situation: 'カフェで注文してサイズまで決める',
-        dialogue: [
-          { speaker: 'npc', en: 'Hi! What can I get for you?', ja: 'いらっしゃい!何にしますか?' },
-          { speaker: 'you', en: 'I\'ll have a coffee.', ja: 'コーヒーをお願いします。',
-            choices: ['I\'ll have a coffee.', 'Coffee yes me.', 'I drink coffee always.'] },
-          { speaker: 'npc', en: 'Sure. Hot or iced?', ja: 'はい。ホットですかアイスですか?' },
-          { speaker: 'you', en: 'Hot, thanks.', ja: 'ホットでお願いします。',
-            choices: ['Hot, thanks.', 'I am hot now.', 'Yes hot.'] },
-          { speaker: 'npc', en: 'What size would you like?', ja: 'サイズはどうしますか?' },
-          { speaker: 'you', en: 'Small, please.', ja: 'スモールでお願いします。',
-            choices: ['Small, please.', 'I am small.', 'Big big yes.'] },
-          { speaker: 'npc', en: 'Coming right up.', ja: 'すぐにお持ちします。' },
-          { speaker: 'you', en: 'Thanks!', ja: 'ありがとう!',
-            choices: ['Thanks!', 'You me thank.', 'Right up me.'] }
+        "id": "st1s1",
+        "title": "コーヒーを注文",
+        "icon": "☕",
+        "situation": "コーヒーを注文してサイズを選ぶ",
+        "dialogue": [
+          {
+            "speaker": "npc",
+            "en": "Hi, what can I get for you?",
+            "ja": "こんにちは。ご注文は何にしますか？"
+          },
+          {
+            "speaker": "you",
+            "en": "Could I get an iced coffee?",
+            "ja": "アイスコーヒーをもらえますか？",
+            "choices": [
+              "Could I get an iced coffee?",
+              "Could I book a room for tonight?",
+              "Could I change my seat, please?",
+              "Could I return this jacket today?"
+            ]
+          },
+          {
+            "speaker": "npc",
+            "en": "Sure, what size would you like?",
+            "ja": "もちろんです。サイズはどうしますか？"
+          },
+          {
+            "speaker": "you",
+            "en": "A medium would be great, thanks.",
+            "ja": "ミディアムでお願いします。",
+            "choices": [
+              "A medium would be great, thanks.",
+              "The train should arrive around noon.",
+              "I left my umbrella at home.",
+              "The bill looks a little high."
+            ]
+          },
+          {
+            "speaker": "npc",
+            "en": "Any milk or sugar in that?",
+            "ja": "ミルクや砂糖は入れますか？"
+          },
+          {
+            "speaker": "you",
+            "en": "Just a little milk, please.",
+            "ja": "ミルクを少しだけお願いします。",
+            "choices": [
+              "Just a little milk, please.",
+              "I have a reservation under Tanaka.",
+              "I need to speak with my manager.",
+              "The Wi-Fi password is not working."
+            ]
+          },
+          {
+            "speaker": "npc",
+            "en": "Great, it will be right out.",
+            "ja": "かしこまりました。すぐご用意します。"
+          },
+          {
+            "speaker": "you",
+            "en": "Thanks, I appreciate it.",
+            "ja": "ありがとうございます。助かります。",
+            "choices": [
+              "Thanks, I appreciate it.",
+              "I prefer the window seat.",
+              "I think we missed our stop.",
+              "I already paid for parking."
+            ]
+          }
         ]
       },
       {
-        id: 'st1s2', title: 'お会計', icon: '💳',
-        situation: 'カードで支払いをして退店',
-        dialogue: [
-          { speaker: 'npc', en: 'Your total comes to ten dollars.', ja: '合計10ドルになります。' },
-          { speaker: 'you', en: 'Can I pay by card?', ja: 'カードで払えますか?',
-            choices: ['Can I pay by card?', 'Card card me.', 'I have money no.'] },
-          { speaker: 'npc', en: 'Of course. Just tap here.', ja: 'もちろん。ここにタッチしてください。' },
-          { speaker: 'you', en: 'Like this?', ja: 'こんな感じ?',
-            choices: ['Like this?', 'I no know.', 'Tap tap me.'] },
-          { speaker: 'npc', en: 'Perfect. Do you need a receipt?', ja: '完璧。レシートは要りますか?' },
-          { speaker: 'you', en: 'No, I\'m good. Thanks.', ja: 'いえ大丈夫です、ありがとう。',
-            choices: ['No, I\'m good. Thanks.', 'Yes me good no.', 'Receipt no me.'] },
-          { speaker: 'npc', en: 'Have a great day!', ja: '良い一日を!' },
-          { speaker: 'you', en: 'You too!', ja: 'あなたも!',
-            choices: ['You too!', 'Yes day me good.', 'Day day yes.'] }
+        "id": "st1s2",
+        "title": "道を聞く",
+        "icon": "🗺️",
+        "situation": "駅までの行き方を確認する",
+        "dialogue": [
+          {
+            "speaker": "npc",
+            "en": "You look a little lost.",
+            "ja": "少し迷っているようですね。"
+          },
+          {
+            "speaker": "you",
+            "en": "Is the station near here?",
+            "ja": "駅はこの近くですか？",
+            "choices": [
+              "Is the station near here?",
+              "Is the coffee still hot?",
+              "Is the room ready yet?",
+              "Is the receipt in the bag?"
+            ]
+          },
+          {
+            "speaker": "npc",
+            "en": "Yes, it is about five minutes away.",
+            "ja": "はい、ここから5分くらいです。"
+          },
+          {
+            "speaker": "you",
+            "en": "Which way should I go?",
+            "ja": "どちらに行けばいいですか？",
+            "choices": [
+              "Which way should I go?",
+              "Which size do you recommend?",
+              "Which card did I use?",
+              "Which table is available now?"
+            ]
+          },
+          {
+            "speaker": "npc",
+            "en": "Go straight, then turn right.",
+            "ja": "まっすぐ行ってから右に曲がってください。"
+          },
+          {
+            "speaker": "you",
+            "en": "Straight, then right. Got it.",
+            "ja": "まっすぐ行って右ですね。分かりました。",
+            "choices": [
+              "Straight, then right. Got it.",
+              "Medium, no sugar. Got it.",
+              "Two tickets, please. Got it.",
+              "The blue one, please. Got it."
+            ]
+          }
         ]
       },
       {
-        id: 'st1s3', title: 'トイレを聞く', icon: '🚻',
-        situation: 'トイレの場所を聞いて見つける',
-        dialogue: [
-          { speaker: 'you', en: 'Excuse me, where\'s the bathroom?', ja: 'すみません、トイレはどこですか?',
-            choices: ['Excuse me, where\'s the bathroom?', 'Toilet toilet me.', 'I want pee.'] },
-          { speaker: 'npc', en: 'It\'s down the hall, on your left.', ja: '廊下の先、左側です。' },
-          { speaker: 'you', en: 'Down the hall, left. Got it.', ja: '廊下の先、左ですね。',
-            choices: ['Down the hall, left. Got it.', 'Hall left no me.', 'Down down where?'] },
-          { speaker: 'npc', en: 'You\'ll see a sign on the door.', ja: 'ドアに看板がありますよ。' },
-          { speaker: 'you', en: 'Got it. Thanks a lot!', ja: 'わかりました。ありがとう!',
-            choices: ['Got it. Thanks a lot!', 'Sign sign me?', 'I no understand.'] },
-          { speaker: 'npc', en: 'No problem.', ja: 'いえいえ。' }
+        "id": "st1s3",
+        "title": "お会計",
+        "icon": "💳",
+        "situation": "カードで支払ってレシートを確認する",
+        "dialogue": [
+          {
+            "speaker": "npc",
+            "en": "Your total is eighteen dollars.",
+            "ja": "合計18ドルです。"
+          },
+          {
+            "speaker": "you",
+            "en": "Can I pay by card?",
+            "ja": "カードで払えますか？",
+            "choices": [
+              "Can I pay by card?",
+              "Can I see the dessert menu?",
+              "Can I get directions downtown?",
+              "Can I check in early?"
+            ]
+          },
+          {
+            "speaker": "npc",
+            "en": "Of course, just tap here.",
+            "ja": "もちろんです。ここにタッチしてください。"
+          },
+          {
+            "speaker": "you",
+            "en": "Like this, or another way?",
+            "ja": "こんな感じですか？それとも別の方法ですか？",
+            "choices": [
+              "Like this, or another way?",
+              "Is this seat taken already?",
+              "Are you open on Sundays?",
+              "Did the flight leave yet?"
+            ]
+          },
+          {
+            "speaker": "npc",
+            "en": "That worked. Need a receipt?",
+            "ja": "できました。レシートは必要ですか？"
+          },
+          {
+            "speaker": "you",
+            "en": "No receipt is fine, thanks.",
+            "ja": "レシートなしで大丈夫です。ありがとう。",
+            "choices": [
+              "No receipt is fine, thanks.",
+              "No onions on mine, please.",
+              "No bags are missing today.",
+              "No rooms are available tonight."
+            ]
+          }
         ]
       },
       {
-        id: 'st1s4', title: '何名様ですか?', icon: '🍴',
-        situation: 'レストランで席に案内されるまで',
-        dialogue: [
-          { speaker: 'npc', en: 'Welcome in! How many?', ja: 'いらっしゃい!何名様?' },
-          { speaker: 'you', en: 'Just two of us.', ja: '2人です。',
-            choices: ['Just two of us.', 'I am two.', 'Two o\'clock.'] },
-          { speaker: 'npc', en: 'Do you have a reservation?', ja: 'ご予約は?' },
-          { speaker: 'you', en: 'No, we don\'t.', ja: 'いえ、ありません。',
-            choices: ['No, we don\'t.', 'Yes me am.', 'Reserve no me.'] },
-          { speaker: 'npc', en: 'No problem. Right this way.', ja: '大丈夫です。こちらへどうぞ。' },
-          { speaker: 'you', en: 'Thanks.', ja: 'ありがとう。',
-            choices: ['Thanks.', 'No way.', 'Right yes.'] },
-          { speaker: 'npc', en: 'Here\'s your menu. Enjoy!', ja: 'メニューです。ごゆっくり!' },
-          { speaker: 'you', en: 'Thank you!', ja: 'ありがとう!',
-            choices: ['Thank you!', 'Enjoy enjoy.', 'Sorry me.'] }
+        "id": "st1s4",
+        "title": "自己紹介",
+        "icon": "🤝",
+        "situation": "初対面で相手とのつながりを話す",
+        "dialogue": [
+          {
+            "speaker": "npc",
+            "en": "Hi, I do not think we have met.",
+            "ja": "こんにちは。初対面ですよね。"
+          },
+          {
+            "speaker": "you",
+            "en": "Nice to meet you. I am Ken.",
+            "ja": "はじめまして。ケンです。",
+            "choices": [
+              "Nice to meet you. I am Ken.",
+              "Nice to order coffee right now.",
+              "Nice to return this item today.",
+              "Nice to check my flight status."
+            ]
+          },
+          {
+            "speaker": "npc",
+            "en": "Nice to meet you too, Ken.",
+            "ja": "こちらこそ、ケンさん。"
+          },
+          {
+            "speaker": "you",
+            "en": "How do you know everyone here?",
+            "ja": "ここにいる皆さんとはどういう知り合いですか？",
+            "choices": [
+              "How do you know everyone here?",
+              "How much is the chicken sandwich?",
+              "How late is the train running?",
+              "How big is the hotel room?"
+            ]
+          },
+          {
+            "speaker": "npc",
+            "en": "I work with Sarah. What about you?",
+            "ja": "サラと一緒に働いています。あなたは？"
+          },
+          {
+            "speaker": "you",
+            "en": "Sarah is an old friend of mine.",
+            "ja": "サラは昔からの友人です。",
+            "choices": [
+              "Sarah is an old friend of mine.",
+              "The station is down this street.",
+              "The receipt is in my bag.",
+              "Dinner starts at seven tonight."
+            ]
+          }
         ]
       },
       {
-        id: 'st1s5', title: '機内でチキンを選ぶ', icon: '✈️',
-        situation: 'CAの食事の問いかけに答える',
-        dialogue: [
-          { speaker: 'npc', en: 'Would you like chicken or beef?', ja: 'チキンと牛肉どちらに?' },
-          { speaker: 'you', en: 'Chicken, thanks.', ja: 'チキンでお願いします。',
-            choices: ['Chicken, thanks.', 'I love chicken.', 'Yes please two.'] },
-          { speaker: 'npc', en: 'And to drink?', ja: 'お飲み物は?' },
-          { speaker: 'you', en: 'Just water for me.', ja: 'お水で大丈夫です。',
-            choices: ['Just water for me.', 'I drink water always.', 'Water no thank.'] },
-          { speaker: 'npc', en: 'Ice in your water?', ja: '氷は入れますか?' },
-          { speaker: 'you', en: 'No ice, thanks.', ja: '氷なしで。',
-            choices: ['No ice, thanks.', 'Yes ice cold.', 'Cold no me.'] },
-          { speaker: 'npc', en: 'Here you are. Enjoy your meal.', ja: 'どうぞ。お食事を楽しんで。' },
-          { speaker: 'you', en: 'Thank you so much.', ja: '本当にありがとう。',
-            choices: ['Thank you so much.', 'You me so.', 'Eat eat me.'] }
+        "id": "st1s5",
+        "title": "席に案内される",
+        "icon": "🍽️",
+        "situation": "レストランで人数と予約有無を伝える",
+        "dialogue": [
+          {
+            "speaker": "npc",
+            "en": "Welcome in. How many tonight?",
+            "ja": "いらっしゃいませ。今夜は何名様ですか？"
+          },
+          {
+            "speaker": "you",
+            "en": "Just two of us tonight.",
+            "ja": "今夜は2人です。",
+            "choices": [
+              "Just two of us tonight.",
+              "Just coffee with no sugar.",
+              "Just directions to the airport.",
+              "Just the receipt is missing."
+            ]
+          },
+          {
+            "speaker": "npc",
+            "en": "Do you have a reservation?",
+            "ja": "ご予約はありますか？"
+          },
+          {
+            "speaker": "you",
+            "en": "No, we just walked in.",
+            "ja": "いえ、予約なしで来ました。",
+            "choices": [
+              "No, we just walked in.",
+              "No, we already checked out.",
+              "No, the train left early.",
+              "No, I paid with cash."
+            ]
+          },
+          {
+            "speaker": "npc",
+            "en": "No problem, we have a table open.",
+            "ja": "問題ありません。空いている席があります。"
+          },
+          {
+            "speaker": "you",
+            "en": "Great, thank you very much.",
+            "ja": "よかったです。ありがとうございます。",
+            "choices": [
+              "Great, thank you very much.",
+              "Great, I missed my flight.",
+              "Great, I forgot my password.",
+              "Great, the shirt is too small."
+            ]
+          }
         ]
       }
     ]
   },
-
-  // ============================================================
-  // STAGE 2: 初級 (Lv 21-40) — 10〜12往復
-  // ============================================================
   {
-    id: 'st2', level: 21, levelRange: [21, 40],
-    title: 'Elementary', ja: '初級', emoji: '🌿', color: '#26a69a',
-    description: '一往復で終わらない継続したやり取り',
-    turnHint: '10〜12往復',
-    situations: [
+    "id": "st2",
+    "level": 21,
+    "levelRange": [
+      21,
+      40
+    ],
+    "title": "初級",
+    "ja": "初級",
+    "emoji": "🌿",
+    "color": "#26a69a",
+    "description": "Slightly longer adult exchanges with context.",
+    "turnHint": "8–12 words, one clear detail added",
+    "situations": [
       {
-        id: 'st2s1', title: '道を聞く', icon: '🗺️',
-        situation: '駅までの行き方を詳しく聞く',
-        dialogue: [
-          { speaker: 'you', en: 'Excuse me, do you know how to get to the station?', ja: 'すみません、駅への行き方ご存知ですか?',
-            choices: ['Excuse me, do you know how to get to the station?', 'Station where me?', 'I want station now.'] },
-          { speaker: 'npc', en: 'Sure. Go straight down this street.', ja: 'はい。この道をまっすぐ。' },
-          { speaker: 'you', en: 'Straight, okay.', ja: 'まっすぐ、はい。',
-            choices: ['Straight, okay.', 'Straight no me.', 'I no understand.'] },
-          { speaker: 'npc', en: 'At the second light, turn left.', ja: '2つ目の信号で左に曲がります。' },
-          { speaker: 'you', en: 'Second light, turn left. Got it.', ja: '2つ目で左、わかりました。',
-            choices: ['Second light, turn left. Got it.', 'Light light yes.', 'Two two left.'] },
-          { speaker: 'npc', en: 'Then walk for about three minutes.', ja: 'そして3分ほど歩いてください。' },
-          { speaker: 'you', en: 'How will I know I\'m there?', ja: '着いたらどうわかりますか?',
-            choices: ['How will I know I\'m there?', 'I know there how?', 'There there me?'] },
-          { speaker: 'npc', en: 'You\'ll see a big blue sign.', ja: '大きな青い看板が見えますよ。' },
-          { speaker: 'you', en: 'Got it. Thanks so much.', ja: 'わかりました、本当にありがとう。',
-            choices: ['Got it. Thanks so much.', 'Blue blue good.', 'Sign sign yes.'] },
-          { speaker: 'npc', en: 'No problem. Have a good one.', ja: 'いえいえ。よい一日を。' },
-          { speaker: 'you', en: 'You too!', ja: 'あなたも!',
-            choices: ['You too!', 'Day day yes.', 'Bye bye!'] }
+        "id": "st2s1",
+        "title": "カフェでおすすめを聞く",
+        "icon": "☕",
+        "situation": "いつもの注文以外の飲み物を相談する",
+        "dialogue": [
+          {
+            "speaker": "npc",
+            "en": "Hi, what are you in the mood for today?",
+            "ja": "こんにちは。今日はどんな気分ですか？"
+          },
+          {
+            "speaker": "you",
+            "en": "I usually get iced coffee, but I want to try something different.",
+            "ja": "普段はアイスコーヒーですが、今日は違うものを試したいです。",
+            "choices": [
+              "I usually get iced coffee, but I want to try something different.",
+              "I usually take the train, but today I need a taxi.",
+              "I usually stay downtown, but tonight I booked near the airport.",
+              "I usually pay by card, but I left my wallet at home."
+            ]
+          },
+          {
+            "speaker": "npc",
+            "en": "If you like coffee, our cold brew latte is popular.",
+            "ja": "コーヒーが好きなら、コールドブリューラテが人気です。"
+          },
+          {
+            "speaker": "you",
+            "en": "That sounds good. Is it sweet, or more on the strong side?",
+            "ja": "よさそうですね。甘いですか？それとも濃いめですか？",
+            "choices": [
+              "That sounds good. Is it sweet, or more on the strong side?",
+              "That sounds good. Is this train going toward the city center?",
+              "That sounds good. Is the hotel breakfast included with the room?",
+              "That sounds good. Is this jacket available in a smaller size?"
+            ]
+          },
+          {
+            "speaker": "npc",
+            "en": "It is pretty smooth, but not too sweet.",
+            "ja": "かなり飲みやすいですが、甘すぎません。"
+          },
+          {
+            "speaker": "you",
+            "en": "Perfect. I will try that in a medium, please.",
+            "ja": "ちょうどいいです。ミディアムでそれをお願いします。",
+            "choices": [
+              "Perfect. I will try that in a medium, please.",
+              "Perfect. I will meet them at the station entrance.",
+              "Perfect. I will check out before eleven tomorrow.",
+              "Perfect. I will return this after I call support."
+            ]
+          }
         ]
       },
       {
-        id: 'st2s2', title: 'タクシーで行き先', icon: '🚕',
-        situation: '空港まで乗車して所要時間を確認',
-        dialogue: [
-          { speaker: 'npc', en: 'Hi, where to?', ja: 'こんにちは、どちらまで?' },
-          { speaker: 'you', en: 'To the airport, please.', ja: '空港までお願いします。',
-            choices: ['To the airport, please.', 'Airport airport.', 'I go fly now.'] },
-          { speaker: 'npc', en: 'Sure. Which terminal?', ja: 'はい。どのターミナル?' },
-          { speaker: 'you', en: 'Terminal one.', ja: 'ターミナル1です。',
-            choices: ['Terminal one.', 'One one one.', 'I no know.'] },
-          { speaker: 'npc', en: 'Got it. About thirty minutes with traffic.', ja: 'わかりました。渋滞込みで30分ほど。' },
-          { speaker: 'you', en: 'Is the traffic usually this bad?', ja: '渋滞はいつもこんな感じ?',
-            choices: ['Is the traffic usually this bad?', 'Traffic traffic me?', 'Bad bad always?'] },
-          { speaker: 'npc', en: 'Yeah, this time of day it\'s pretty heavy.', ja: 'ええ、この時間は混みますね。' },
-          { speaker: 'you', en: 'I see. I should leave earlier next time.', ja: 'なるほど。次は早めに出ますね。',
-            choices: ['I see. I should leave earlier next time.', 'I leave early me.', 'Yes early next.'] },
-          { speaker: 'npc', en: 'Good idea. Just sit back and relax.', ja: 'いいですね。リラックスしてください。' },
-          { speaker: 'you', en: 'Thanks!', ja: 'ありがとう!',
-            choices: ['Thanks!', 'You me good.', 'Relax relax me.'] },
-          { speaker: 'npc', en: 'My pleasure.', ja: 'いえいえ。' }
+        "id": "st2s2",
+        "title": "ホテルチェックイン",
+        "icon": "🏨",
+        "situation": "予約確認・身分証・朝食とWi-Fiを確認する",
+        "dialogue": [
+          {
+            "speaker": "npc",
+            "en": "Good evening. Are you checking in with us tonight?",
+            "ja": "こんばんは。本日チェックインですか？"
+          },
+          {
+            "speaker": "you",
+            "en": "Yes, I have a reservation under the name Tanaka.",
+            "ja": "はい、田中の名前で予約しています。",
+            "choices": [
+              "Yes, I have a reservation under the name Tanaka.",
+              "Yes, I would like the salmon with vegetables.",
+              "Yes, I need to take the subway downtown.",
+              "Yes, I am returning this because it is damaged."
+            ]
+          },
+          {
+            "speaker": "npc",
+            "en": "I found it. May I see your ID and card?",
+            "ja": "確認できました。身分証とカードを拝見できますか？"
+          },
+          {
+            "speaker": "you",
+            "en": "Sure, here they are. Is breakfast included with the room?",
+            "ja": "もちろんです。こちらです。朝食は部屋代に含まれていますか？",
+            "choices": [
+              "Sure, here they are. Is breakfast included with the room?",
+              "Sure, here they are. Is this coffee made with oat milk?",
+              "Sure, here they are. Is the next train still on time?",
+              "Sure, here they are. Is this shirt machine washable?"
+            ]
+          },
+          {
+            "speaker": "npc",
+            "en": "Yes, breakfast is served downstairs from seven to ten.",
+            "ja": "はい、朝食は階下で7時から10時までです。"
+          },
+          {
+            "speaker": "you",
+            "en": "Great. Could I also get the Wi-Fi information?",
+            "ja": "よかったです。Wi-Fi情報もいただけますか？",
+            "choices": [
+              "Great. Could I also get the Wi-Fi information?",
+              "Great. Could I also get fries instead of salad?",
+              "Great. Could I also get a receipt by email?",
+              "Great. Could I also get directions to the museum?"
+            ]
+          }
         ]
       },
       {
-        id: 'st2s3', title: '自己紹介', icon: '🤝',
-        situation: '初対面で趣味やおすすめまで話す',
-        dialogue: [
-          { speaker: 'npc', en: 'Hi, I don\'t think we\'ve met. I\'m John.', ja: 'こんにちは、初対面ですね。ジョンです。' },
-          { speaker: 'you', en: 'Nice to meet you. I\'m Tanaka.', ja: 'こちらこそ、タナカです。',
-            choices: ['Nice to meet you. I\'m Tanaka.', 'I am Tanaka me.', 'You me Tanaka.'] },
-          { speaker: 'npc', en: 'Tanaka. Where are you from?', ja: 'タナカさん。どちらの出身?' },
-          { speaker: 'you', en: 'I\'m from Japan.', ja: '日本です。',
-            choices: ['I\'m from Japan.', 'Japan I am yes.', 'I live Japan.'] },
-          { speaker: 'npc', en: 'Cool! What brings you here?', ja: 'いいですね!こちらには何で?' },
-          { speaker: 'you', en: 'I\'m here on vacation.', ja: '休暇で来てます。',
-            choices: ['I\'m here on vacation.', 'Vacation vacation.', 'I sleep tour.'] },
-          { speaker: 'npc', en: 'How are you liking it so far?', ja: 'これまでの感想は?' },
-          { speaker: 'you', en: 'I love it. The food is amazing.', ja: '最高です。食事が素晴らしい。',
-            choices: ['I love it. The food is amazing.', 'Food food yes.', 'I like eat much.'] },
-          { speaker: 'npc', en: 'Right? Wait until you try the local desserts.', ja: 'でしょ?地元のデザートも試して。' },
-          { speaker: 'you', en: 'Any recommendations?', ja: 'おすすめは?',
-            choices: ['Any recommendations?', 'Tell me good?', 'You like dessert?'] },
-          { speaker: 'npc', en: 'Definitely the chocolate cake at Maria\'s.', ja: 'マリアのチョコケーキは絶対。' },
-          { speaker: 'you', en: 'I\'ll check it out. Thanks!', ja: '行ってみます、ありがとう!',
-            choices: ['I\'ll check it out. Thanks!', 'Cake cake me yes.', 'Maria Maria!'] }
+        "id": "st2s3",
+        "title": "タクシーに乗る",
+        "icon": "🚕",
+        "situation": "空港までの移動と時間を確認する",
+        "dialogue": [
+          {
+            "speaker": "npc",
+            "en": "Hi there, where are we headed today?",
+            "ja": "こんにちは。今日はどちらまで行きますか？"
+          },
+          {
+            "speaker": "you",
+            "en": "Could you take me to the airport, Terminal Two?",
+            "ja": "空港のターミナル2までお願いできますか？",
+            "choices": [
+              "Could you take me to the airport, Terminal Two?",
+              "Could you bring me a glass of water?",
+              "Could you check whether my room is ready?",
+              "Could you tell me which size fits better?"
+            ]
+          },
+          {
+            "speaker": "npc",
+            "en": "Sure thing. Do you have a flight soon?",
+            "ja": "もちろんです。すぐフライトですか？"
+          },
+          {
+            "speaker": "you",
+            "en": "It boards in about two hours, so I have some time.",
+            "ja": "搭乗は約2時間後なので、少し時間があります。",
+            "choices": [
+              "It boards in about two hours, so I have some time.",
+              "It tastes a little too salty, so I need water.",
+              "It opens in about two hours, so I may wait.",
+              "It fits pretty well, so I might buy it."
+            ]
+          },
+          {
+            "speaker": "npc",
+            "en": "Traffic is light right now, so we should be fine.",
+            "ja": "今は渋滞が少ないので、大丈夫だと思います。"
+          },
+          {
+            "speaker": "you",
+            "en": "That is a relief. I was worried about rush hour.",
+            "ja": "安心しました。ラッシュアワーが心配でした。",
+            "choices": [
+              "That is a relief. I was worried about rush hour.",
+              "That is a relief. I was worried about the room key.",
+              "That is a relief. I was worried about the coffee order.",
+              "That is a relief. I was worried about the shirt color."
+            ]
+          }
         ]
       },
       {
-        id: 'st2s4', title: 'ホテルチェックイン', icon: '🏨',
-        situation: '予約確認から朝食情報まで',
-        dialogue: [
-          { speaker: 'npc', en: 'Welcome to the Grand Hotel. Checking in?', ja: 'ようこそ。チェックインですか?' },
-          { speaker: 'you', en: 'Yes, I have a reservation under Tanaka.', ja: 'はい、タナカで予約しています。',
-            choices: ['Yes, I have a reservation under Tanaka.', 'Yes me check Tanaka.', 'Tanaka me reserve.'] },
-          { speaker: 'npc', en: 'Let me find that for you.', ja: '確認します。' },
-          { speaker: 'you', en: 'Take your time.', ja: 'ゆっくりで大丈夫です。',
-            choices: ['Take your time.', 'Quick quick please.', 'Time time me wait.'] },
-          { speaker: 'npc', en: 'Found it. May I see your ID?', ja: 'ありました。身分証を見せてもらえますか?' },
-          { speaker: 'you', en: 'Sure, here you go.', ja: 'はい、どうぞ。',
-            choices: ['Sure, here you go.', 'ID ID me have.', 'I have card.'] },
-          { speaker: 'npc', en: 'Thanks. You\'re in room 305 on the third floor.', ja: 'ありがとう。3階の305号室です。' },
-          { speaker: 'you', en: 'What time does breakfast start?', ja: '朝食は何時から?',
-            choices: ['What time does breakfast start?', 'Eat morning when?', 'Breakfast me when?'] },
-          { speaker: 'npc', en: 'Seven to ten in the morning.', ja: '朝7時から10時までです。' },
-          { speaker: 'you', en: 'Where\'s the breakfast room?', ja: '朝食会場はどこ?',
-            choices: ['Where\'s the breakfast room?', 'Eat room where?', 'I find food where?'] },
-          { speaker: 'npc', en: 'Second floor, next to the elevator.', ja: '2階のエレベーター横です。' },
-          { speaker: 'you', en: 'Got it. Thank you!', ja: 'わかりました、ありがとう!',
-            choices: ['Got it. Thank you!', 'Two two yes.', 'Elevator yes me.'] }
+        "id": "st2s4",
+        "title": "商品の交換",
+        "icon": "🛍️",
+        "situation": "買った商品のサイズ交換を相談する",
+        "dialogue": [
+          {
+            "speaker": "npc",
+            "en": "Hi, how can I help you today?",
+            "ja": "こんにちは。今日はどうされましたか？"
+          },
+          {
+            "speaker": "you",
+            "en": "I bought this yesterday, but it does not fit well.",
+            "ja": "昨日これを買ったのですが、サイズが合いません。",
+            "choices": [
+              "I bought this yesterday, but it does not fit well.",
+              "I booked this yesterday, but the room was canceled.",
+              "I ordered this yesterday, but the coffee was too sweet.",
+              "I called this yesterday, but the line was busy."
+            ]
+          },
+          {
+            "speaker": "npc",
+            "en": "No problem. Do you have the receipt with you?",
+            "ja": "問題ありません。レシートはお持ちですか？"
+          },
+          {
+            "speaker": "you",
+            "en": "Yes, I have it here in the bag.",
+            "ja": "はい、袋の中に入っています。",
+            "choices": [
+              "Yes, I have it here in the bag.",
+              "Yes, I parked it behind the hotel.",
+              "Yes, I ordered it without onions.",
+              "Yes, I wrote it on the map."
+            ]
+          },
+          {
+            "speaker": "npc",
+            "en": "Would you like a refund or an exchange?",
+            "ja": "返金と交換、どちらをご希望ですか？"
+          },
+          {
+            "speaker": "you",
+            "en": "An exchange would be great if you have a larger size.",
+            "ja": "大きいサイズがあれば交換したいです。",
+            "choices": [
+              "An exchange would be great if you have a larger size.",
+              "A window seat would be great if the flight is full.",
+              "A quiet room would be great if the hotel is busy.",
+              "A cold drink would be great if the wait is long."
+            ]
+          }
         ]
       },
       {
-        id: 'st2s5', title: '機内で物を頼む', icon: '🥤',
-        situation: 'お水と毛布を頼む',
-        dialogue: [
-          { speaker: 'you', en: 'Excuse me, could I get some water?', ja: 'すみません、お水もらえますか?',
-            choices: ['Excuse me, could I get some water?', 'Water me thirsty.', 'I drink now me.'] },
-          { speaker: 'npc', en: 'Of course. Still or sparkling?', ja: 'もちろん。普通?炭酸?' },
-          { speaker: 'you', en: 'Still, thanks.', ja: '普通でお願いします。',
-            choices: ['Still, thanks.', 'I am still.', 'Yes water.'] },
-          { speaker: 'npc', en: 'With ice?', ja: '氷は?' },
-          { speaker: 'you', en: 'No ice.', ja: '氷なしで。',
-            choices: ['No ice.', 'Yes cold.', 'Ice ice no.'] },
-          { speaker: 'npc', en: 'Here you are.', ja: 'どうぞ。' },
-          { speaker: 'you', en: 'Thanks. One more thing.', ja: 'ありがとう。もう一つ。',
-            choices: ['Thanks. One more thing.', 'More more please.', 'I want one me.'] },
-          { speaker: 'npc', en: 'Yes?', ja: 'はい?' },
-          { speaker: 'you', en: 'Could I get a blanket too?', ja: '毛布ももらえますか?',
-            choices: ['Could I get a blanket too?', 'Blanket me cold.', 'Cover cover please.'] },
-          { speaker: 'npc', en: 'Sure, I\'ll bring one right away.', ja: 'はい、すぐお持ちします。' },
-          { speaker: 'you', en: 'Thanks so much.', ja: '本当にありがとう。',
-            choices: ['Thanks so much.', 'You me good.', 'Right right yes.'] }
+        "id": "st2s5",
+        "title": "夕食の予定を決める",
+        "icon": "🍝",
+        "situation": "友人と時間・予算・店を決める",
+        "dialogue": [
+          {
+            "speaker": "npc",
+            "en": "Are you still free for dinner tonight?",
+            "ja": "今夜の夕食はまだ空いていますか？"
+          },
+          {
+            "speaker": "you",
+            "en": "Yes, I am free after work around seven.",
+            "ja": "はい、仕事後の7時ごろなら空いています。",
+            "choices": [
+              "Yes, I am free after work around seven.",
+              "Yes, I paid the bill with my card.",
+              "Yes, I found the bathroom near the elevator.",
+              "Yes, I booked the flight for tomorrow."
+            ]
+          },
+          {
+            "speaker": "npc",
+            "en": "Great. Do you feel like Italian or something lighter?",
+            "ja": "よかったです。イタリアンがいいですか、それとも軽めがいいですか？"
+          },
+          {
+            "speaker": "you",
+            "en": "Italian sounds good, but nothing too expensive tonight.",
+            "ja": "イタリアンがいいですが、今夜はあまり高くない店がいいです。",
+            "choices": [
+              "Italian sounds good, but nothing too expensive tonight.",
+              "Iced coffee sounds good, but nothing too sweet today.",
+              "The hotel sounds good, but nothing too far from downtown.",
+              "The jacket sounds good, but nothing too formal for work."
+            ]
+          },
+          {
+            "speaker": "npc",
+            "en": "I know a casual place near the station.",
+            "ja": "駅の近くにカジュアルなお店を知っています。"
+          },
+          {
+            "speaker": "you",
+            "en": "Perfect. Send me the address, and I will meet you there.",
+            "ja": "いいですね。住所を送ってください。そこで会いましょう。",
+            "choices": [
+              "Perfect. Send me the address, and I will meet you there.",
+              "Perfect. Send me the receipt, and I will return it tomorrow.",
+              "Perfect. Send me the menu, and I will order a taxi.",
+              "Perfect. Send me the key, and I will check the gate."
+            ]
+          }
         ]
       }
     ]
   },
-
-  // ============================================================
-  // STAGE 3: 中級 (Lv 41-60) — 14〜16往復
-  // ============================================================
   {
-    id: 'st3', level: 41, levelRange: [41, 60],
-    title: 'Intermediate', ja: '中級', emoji: '🌳', color: '#42a5f5',
-    description: '標準的な旅行シーンを完結まで',
-    turnHint: '14〜16往復',
-    situations: [
+    "id": "st3",
+    "level": 41,
+    "levelRange": [
+      41,
+      60
+    ],
+    "title": "中級",
+    "ja": "中級",
+    "emoji": "🌳",
+    "color": "#42a5f5",
+    "description": "Longer natural exchanges with preferences, reasons, and follow-up questions.",
+    "turnHint": "12–18 words, reason or condition included",
+    "situations": [
       {
-        id: 'st3s1', title: 'レストラン入店〜席案内', icon: '🍽️',
-        situation: 'カフェに入って席に案内されメニューまで',
-        dialogue: [
-          { speaker: 'npc', en: 'Hey there, welcome in! How\'s it going?', ja: 'いらっしゃい!調子どう?' },
-          { speaker: 'you', en: 'Pretty good, thanks.', ja: '元気です、ありがとう。',
-            choices: ['Pretty good, thanks.', 'Yes I am good.', 'Going good me.'] },
-          { speaker: 'npc', en: 'How many in your party?', ja: '何名様?' },
-          { speaker: 'you', en: 'Just two of us.', ja: '2人です。',
-            choices: ['Just two of us.', 'I am two.', 'Two o\'clock yes.'] },
-          { speaker: 'npc', en: 'Do you have a reservation?', ja: 'ご予約は?' },
-          { speaker: 'you', en: 'No, we don\'t.', ja: 'いえ、ありません。',
-            choices: ['No, we don\'t.', 'Yes I have no.', 'Reservation me?'] },
-          { speaker: 'npc', en: 'That\'s fine, we have tables open. Booth or table?', ja: '大丈夫です。ボックスとテーブルどちら?' },
-          { speaker: 'you', en: 'A table works.', ja: 'テーブルで。',
-            choices: ['A table works.', 'Table table.', 'I want booth no.'] },
-          { speaker: 'npc', en: 'Inside or out on the patio?', ja: '店内?テラス?' },
-          { speaker: 'you', en: 'Inside, it\'s a bit chilly outside.', ja: '店内で。外は少し寒い。',
-            choices: ['Inside, it\'s a bit chilly outside.', 'Cold cold outside.', 'I no like patio.'] },
-          { speaker: 'npc', en: 'I hear you. Right this way.', ja: 'わかります。こちらへ。' },
-          { speaker: 'you', en: 'Thanks.', ja: 'ありがとう。',
-            choices: ['Thanks.', 'Hear hear me.', 'No this way.'] },
-          { speaker: 'npc', en: 'Here are your menus. Specials are on the back.', ja: 'メニューです。本日のおすすめは裏面に。' },
-          { speaker: 'you', en: 'Could we have some water to start?', ja: 'まずお水もらえますか?',
-            choices: ['Could we have some water to start?', 'Water me first.', 'Start water yes.'] },
-          { speaker: 'npc', en: 'Sure thing. I\'ll be right back.', ja: 'はい。すぐ戻ります。' },
-          { speaker: 'you', en: 'Thank you.', ja: 'ありがとう。',
-            choices: ['Thank you.', 'Right back me.', 'You me sure.'] }
+        "id": "st3s1",
+        "title": "カフェで飲み物相談",
+        "icon": "☕",
+        "situation": "カフェイン少なめの飲み物を相談する",
+        "dialogue": [
+          {
+            "speaker": "npc",
+            "en": "Hi, welcome in. Are you looking for coffee, tea, or something cold today?",
+            "ja": "いらっしゃいませ。今日はコーヒー、紅茶、冷たい飲み物のどれをお探しですか？"
+          },
+          {
+            "speaker": "you",
+            "en": "I usually get iced coffee, but I am trying not to drink too much caffeine today.",
+            "ja": "普段はアイスコーヒーですが、今日はカフェインを取りすぎないようにしています。",
+            "choices": [
+              "I usually get iced coffee, but I am trying not to drink too much caffeine today.",
+              "I usually take the subway, but I am trying not to arrive too early today.",
+              "I usually stay near downtown, but I am trying not to spend too much tonight.",
+              "I usually buy this brand, but I am trying not to wear dark colors today."
+            ]
+          },
+          {
+            "speaker": "npc",
+            "en": "In that case, you might like our half-caf latte or the hibiscus iced tea.",
+            "ja": "それなら、ハーフカフェのラテかハイビスカスアイスティーが合うかもしれません。"
+          },
+          {
+            "speaker": "you",
+            "en": "The half-caf latte sounds good. Can you make it iced with oat milk?",
+            "ja": "ハーフカフェのラテがよさそうです。オーツミルクでアイスにできますか？",
+            "choices": [
+              "The half-caf latte sounds good. Can you make it iced with oat milk?",
+              "The hotel breakfast sounds good. Can you make the room quiet at night?",
+              "The later flight sounds good. Can you make the connection easier for me?",
+              "The blue jacket sounds good. Can you make sure it fits over a sweater?"
+            ]
+          },
+          {
+            "speaker": "npc",
+            "en": "Absolutely. Would you like it sweetened at all, or just plain?",
+            "ja": "もちろんです。少し甘くしますか？それともそのままにしますか？"
+          },
+          {
+            "speaker": "you",
+            "en": "Just plain is fine. I want something easy to drink while I work.",
+            "ja": "そのままで大丈夫です。仕事中に飲みやすいものがいいです。",
+            "choices": [
+              "Just plain is fine. I want something easy to drink while I work.",
+              "Just email is fine. I want something easy to show at the desk.",
+              "Just walking is fine. I want something easy to reach before dinner.",
+              "Just black is fine. I want something easy to wear with jeans."
+            ]
+          }
         ]
       },
       {
-        id: 'st3s2', title: '料理を注文', icon: '🍔',
-        situation: 'メニューから飲み物・料理・サイドまで',
-        dialogue: [
-          { speaker: 'npc', en: 'Are you guys ready to order?', ja: 'ご注文お決まりですか?' },
-          { speaker: 'you', en: 'Yes, I think so.', ja: 'はい、たぶん。',
-            choices: ['Yes, I think so.', 'Yes me ready.', 'Order order me.'] },
-          { speaker: 'npc', en: 'What can I get you?', ja: '何にしましょう?' },
-          { speaker: 'you', en: 'I\'ll have the cheeseburger.', ja: 'チーズバーガーで。',
-            choices: ['I\'ll have the cheeseburger.', 'Burger burger me.', 'I love cheese.'] },
-          { speaker: 'npc', en: 'How would you like it cooked?', ja: '焼き加減は?' },
-          { speaker: 'you', en: 'Medium, please.', ja: 'ミディアムで。',
-            choices: ['Medium, please.', 'I cook well.', 'Yes please good.'] },
-          { speaker: 'npc', en: 'And what side?', ja: 'サイドは?' },
-          { speaker: 'you', en: 'Fries, thanks.', ja: 'ポテトで。',
-            choices: ['Fries, thanks.', 'Side side yes.', 'I love potato much.'] },
-          { speaker: 'npc', en: 'Anything to drink?', ja: '飲み物は?' },
-          { speaker: 'you', en: 'Just water for now.', ja: '今のところお水だけで。',
-            choices: ['Just water for now.', 'Water water.', 'I drink later me.'] },
-          { speaker: 'npc', en: 'Sparkling or still?', ja: '炭酸入り?普通?' },
-          { speaker: 'you', en: 'Still is fine.', ja: '普通で大丈夫。',
-            choices: ['Still is fine.', 'Still still.', 'I am still.'] },
-          { speaker: 'npc', en: 'Got it. Anything else?', ja: 'はい。他には?' },
-          { speaker: 'you', en: 'Not for now.', ja: 'これで大丈夫です。',
-            choices: ['Not for now.', 'No no me.', 'Else else no.'] },
-          { speaker: 'npc', en: 'I\'ll get that started right away.', ja: 'すぐお作りします。' },
-          { speaker: 'you', en: 'Thanks!', ja: 'ありがとう!',
-            choices: ['Thanks!', 'Started right me.', 'Yes way.'] }
+        "id": "st3s2",
+        "title": "料理を注文",
+        "icon": "🥗",
+        "situation": "アレルギーを確認して料理を注文する",
+        "dialogue": [
+          {
+            "speaker": "npc",
+            "en": "Are you ready to order, or would you like a few more minutes?",
+            "ja": "ご注文はお決まりですか？それとももう少しお時間が必要ですか？"
+          },
+          {
+            "speaker": "you",
+            "en": "I am almost ready, but I wanted to ask about the chicken salad first.",
+            "ja": "ほぼ決まっていますが、先にチキンサラダについて聞きたいです。",
+            "choices": [
+              "I am almost ready, but I wanted to ask about the chicken salad first.",
+              "I am almost ready, but I wanted to ask about the train schedule first.",
+              "I am almost ready, but I wanted to ask about the hotel deposit first.",
+              "I am almost ready, but I wanted to ask about the return policy first."
+            ]
+          },
+          {
+            "speaker": "npc",
+            "en": "Of course. What would you like to know about it?",
+            "ja": "もちろんです。どの点を知りたいですか？"
+          },
+          {
+            "speaker": "you",
+            "en": "Does it have any nuts in the dressing, or are they only on top?",
+            "ja": "ドレッシングにナッツは入っていますか？それとも上に乗っているだけですか？",
+            "choices": [
+              "Does it have any nuts in the dressing, or are they only on top?",
+              "Does it have any stops before downtown, or does it go straight there?",
+              "Does it have any fees after checkout, or are they all included?",
+              "Does it have any damage on the sleeve, or is it only wrinkled?"
+            ]
+          },
+          {
+            "speaker": "npc",
+            "en": "They are just on top, but I can ask the kitchen to be sure.",
+            "ja": "上に乗っているだけですが、念のためキッチンに確認できます。"
+          },
+          {
+            "speaker": "you",
+            "en": "I would appreciate that, because I have a mild nut allergy.",
+            "ja": "助かります。軽いナッツアレルギーがあるので。",
+            "choices": [
+              "I would appreciate that, because I have a mild nut allergy.",
+              "I would appreciate that, because I have an early meeting tomorrow.",
+              "I would appreciate that, because I have a tight flight connection.",
+              "I would appreciate that, because I have a receipt in my email."
+            ]
+          },
+          {
+            "speaker": "npc",
+            "en": "No problem. I will check and make sure it is handled safely.",
+            "ja": "問題ありません。確認して安全に対応します。"
+          },
+          {
+            "speaker": "you",
+            "en": "Thanks. If it is easier, I can order something without dressing.",
+            "ja": "ありがとうございます。もし簡単なら、ドレッシングなしのものを注文しても大丈夫です。",
+            "choices": [
+              "Thanks. If it is easier, I can order something without dressing.",
+              "Thanks. If it is easier, I can take a taxi from the station.",
+              "Thanks. If it is easier, I can check in after dinner.",
+              "Thanks. If it is easier, I can exchange it next week."
+            ]
+          }
         ]
       },
       {
-        id: 'st3s3', title: '道に迷ったとき', icon: '🆘',
-        situation: '迷って通行人に詳しく聞く',
-        dialogue: [
-          { speaker: 'you', en: 'Excuse me, I think I\'m lost.', ja: 'すみません、道に迷ったみたいで。',
-            choices: ['Excuse me, I think I\'m lost.', 'I lose place.', 'Where me here?'] },
-          { speaker: 'npc', en: 'Oh, where are you trying to go?', ja: 'どちらに行きたいんですか?' },
-          { speaker: 'you', en: 'I\'m looking for Central Park.', ja: 'セントラルパークを探しています。',
-            choices: ['I\'m looking for Central Park.', 'Park park me.', 'I see park.'] },
-          { speaker: 'npc', en: 'You\'re not too far. About ten minutes from here.', ja: 'そんなに遠くないよ。ここから10分くらい。' },
-          { speaker: 'you', en: 'Which direction?', ja: 'どっち方向ですか?',
-            choices: ['Which direction?', 'Way way me?', 'I go where?'] },
-          { speaker: 'npc', en: 'Head north on this street.', ja: 'この道を北に。' },
-          { speaker: 'you', en: 'Which way is north?', ja: '北はどっちですか?',
-            choices: ['Which way is north?', 'North north me?', 'I no compass.'] },
-          { speaker: 'npc', en: 'That way, with the tall buildings.', ja: 'あちら、高いビルがある方。' },
-          { speaker: 'you', en: 'Got it. Then what?', ja: 'なるほど。それから?',
-            choices: ['Got it. Then what?', 'Then me?', 'Tall tall yes.'] },
-          { speaker: 'npc', en: 'Walk straight for five blocks.', ja: 'まっすぐ5ブロック。' },
-          { speaker: 'you', en: 'Five blocks, north.', ja: '5ブロック、北、はい。',
-            choices: ['Five blocks, north.', 'Block block five.', 'I count five me.'] },
-          { speaker: 'npc', en: 'Then turn right at the museum.', ja: '美術館で右に。' },
-          { speaker: 'you', en: 'I won\'t miss the museum, I hope.', ja: '美術館はわかると思う。',
-            choices: ['I won\'t miss the museum, I hope.', 'Museum museum where?', 'I no see art.'] },
-          { speaker: 'npc', en: 'It\'s a big white building. You can\'t miss it.', ja: '大きな白い建物だからすぐ見つかる。' },
-          { speaker: 'you', en: 'Thanks so much for your help!', ja: '本当にありがとう!',
-            choices: ['Thanks so much for your help!', 'White white good.', 'Big big yes me.'] }
+        "id": "st3s3",
+        "title": "飛行機遅延の確認",
+        "icon": "✈️",
+        "situation": "遅延時間と乗り継ぎへの影響を確認する",
+        "dialogue": [
+          {
+            "speaker": "npc",
+            "en": "I am sorry, but your flight has been delayed by about ninety minutes.",
+            "ja": "申し訳ありませんが、お客様の便は約90分遅れています。"
+          },
+          {
+            "speaker": "you",
+            "en": "Thanks for letting me know. Do you think the departure time might change again?",
+            "ja": "知らせてくれてありがとうございます。出発時間はまた変わる可能性がありますか？",
+            "choices": [
+              "Thanks for letting me know. Do you think the departure time might change again?",
+              "Thanks for letting me know. Do you think the coffee order might be ready soon?",
+              "Thanks for letting me know. Do you think the hotel room might be quieter tonight?",
+              "Thanks for letting me know. Do you think the jacket might go on sale tomorrow?"
+            ]
+          },
+          {
+            "speaker": "npc",
+            "en": "It is possible, but right now the airline expects this update to hold.",
+            "ja": "可能性はありますが、現時点ではこの予定で進む見込みです。"
+          },
+          {
+            "speaker": "you",
+            "en": "I have a connection after this flight, so I am a little worried.",
+            "ja": "この後に乗り継ぎがあるので、少し心配です。",
+            "choices": [
+              "I have a connection after this flight, so I am a little worried.",
+              "I have a reservation after this dinner, so I am a little hungry.",
+              "I have a meeting after this shower, so I am a little relaxed.",
+              "I have a return after this purchase, so I am a little unsure."
+            ]
+          },
+          {
+            "speaker": "npc",
+            "en": "Let me check your itinerary and see how much time you will have.",
+            "ja": "旅程を確認して、どのくらい時間があるか見てみます。"
+          },
+          {
+            "speaker": "you",
+            "en": "That would be helpful. I am trying to avoid missing the next flight.",
+            "ja": "助かります。次の便に乗り遅れないようにしたいです。",
+            "choices": [
+              "That would be helpful. I am trying to avoid missing the next flight.",
+              "That would be helpful. I am trying to avoid ordering the wrong size.",
+              "That would be helpful. I am trying to avoid taking the wrong bus.",
+              "That would be helpful. I am trying to avoid paying the same bill twice."
+            ]
+          }
         ]
       },
       {
-        id: 'st3s4', title: 'ホテル部屋トラブル', icon: '🛏️',
-        situation: 'Wi-Fi・タオル・追加リクエストまで',
-        dialogue: [
-          { speaker: 'you', en: 'Hi, sorry to bother you.', ja: 'すみません、ちょっと。',
-            choices: ['Hi, sorry to bother you.', 'Sorry sorry me.', 'You me bad.'] },
-          { speaker: 'npc', en: 'No bother at all. What\'s up?', ja: '大丈夫ですよ。どうしました?' },
-          { speaker: 'you', en: 'My room\'s Wi-Fi isn\'t working.', ja: '部屋のWi-Fiが使えなくて。',
-            choices: ['My room\'s Wi-Fi isn\'t working.', 'Wi-Fi me bad.', 'No internet me.'] },
-          { speaker: 'npc', en: 'I\'m sorry about that. What room are you in?', ja: '申し訳ありません。何号室ですか?' },
-          { speaker: 'you', en: 'Room 502.', ja: '502号室です。',
-            choices: ['Room 502.', 'Five oh two.', 'Five hundred two.'] },
-          { speaker: 'npc', en: 'Have you tried restarting your device?', ja: '端末を再起動してみました?' },
-          { speaker: 'you', en: 'Yes, but it still won\'t connect.', ja: 'はい、でも繋がらないです。',
-            choices: ['Yes, but it still won\'t connect.', 'Yes restart no.', 'Connect connect bad.'] },
-          { speaker: 'npc', en: 'Let me send a technician up.', ja: '技術者を送りますね。' },
-          { speaker: 'you', en: 'How long will it take?', ja: 'どれくらいかかります?',
-            choices: ['How long will it take?', 'Long long me?', 'Time time how?'] },
-          { speaker: 'npc', en: 'About fifteen minutes.', ja: '15分ほど。' },
-          { speaker: 'you', en: 'Okay. Could I also get more towels?', ja: 'はい。あとタオルも追加で。',
-            choices: ['Okay. Could I also get more towels?', 'Towel give now.', 'Wash wash me.'] },
-          { speaker: 'npc', en: 'Sure, how many?', ja: 'はい、何枚?' },
-          { speaker: 'you', en: 'Just two extras would be great.', ja: '2枚追加してもらえると。',
-            choices: ['Just two extras would be great.', 'Two o\'clock please.', 'Many many thank.'] },
-          { speaker: 'npc', en: 'I\'ll send those up too.', ja: '一緒に送ります。' },
-          { speaker: 'you', en: 'Thanks for your help.', ja: '助かります、ありがとう。',
-            choices: ['Thanks for your help.', 'Help help good.', 'You me thank yes.'] },
-          { speaker: 'npc', en: 'My pleasure. Sorry for the trouble.', ja: 'いえいえ。ご迷惑をおかけしました。' }
+        "id": "st3s4",
+        "title": "打ち合わせ時間の調整",
+        "icon": "📅",
+        "situation": "予定時刻を少しずらしてもらう",
+        "dialogue": [
+          {
+            "speaker": "npc",
+            "en": "Do you still have time to meet at three this afternoon?",
+            "ja": "今日の午後3時にまだ打ち合わせできますか？"
+          },
+          {
+            "speaker": "you",
+            "en": "I can make three, but I may be a few minutes late.",
+            "ja": "3時には行けますが、数分遅れるかもしれません。",
+            "choices": [
+              "I can make three, but I may be a few minutes late.",
+              "I can make coffee, but I may need a little milk.",
+              "I can make dinner, but I may order something small.",
+              "I can make the train, but I may buy another ticket."
+            ]
+          },
+          {
+            "speaker": "npc",
+            "en": "No worries. Would three fifteen be better for you?",
+            "ja": "大丈夫です。3時15分の方がいいですか？"
+          },
+          {
+            "speaker": "you",
+            "en": "Yes, three fifteen would be much easier with my schedule.",
+            "ja": "はい、自分の予定だと3時15分の方がかなり楽です。",
+            "choices": [
+              "Yes, three fifteen would be much easier with my schedule.",
+              "Yes, the medium latte would be much easier with less sugar.",
+              "Yes, the front desk would be much easier with my luggage.",
+              "Yes, the blue shirt would be much easier with dark jeans."
+            ]
+          },
+          {
+            "speaker": "npc",
+            "en": "Great, I will move it and send you an updated invite.",
+            "ja": "では変更して、更新した招待を送ります。"
+          },
+          {
+            "speaker": "you",
+            "en": "Thanks. I will review the notes before we start.",
+            "ja": "ありがとうございます。始まる前にメモを確認しておきます。",
+            "choices": [
+              "Thanks. I will review the notes before we start.",
+              "Thanks. I will check the gate before we board.",
+              "Thanks. I will wash the cup before I leave.",
+              "Thanks. I will try the jacket before I pay."
+            ]
+          }
         ]
       },
       {
-        id: 'st3s5', title: '友達と昨日のテレビの話', icon: '📺',
-        situation: '映画・俳優・他の番組まで話題が広がる',
-        dialogue: [
-          { speaker: 'npc', en: 'Hey, did you watch anything good last night?', ja: 'ねえ、昨夜何かいいの見た?' },
-          { speaker: 'you', en: 'Yeah, I watched a movie on Netflix.', ja: 'うん、Netflixで映画見た。',
-            choices: ['Yeah, I watched a movie on Netflix.', 'I no see TV.', 'Netflix Netflix.'] },
-          { speaker: 'npc', en: 'Oh, what was it?', ja: 'へえ、何?' },
-          { speaker: 'you', en: 'It was an action movie called Speed Run.', ja: '「スピードラン」っていうアクション。',
-            choices: ['It was an action movie called Speed Run.', 'Action action.', 'Movie name no.'] },
-          { speaker: 'npc', en: 'Never heard of it. Was it any good?', ja: '聞いたことない。面白かった?' },
-          { speaker: 'you', en: 'It was pretty fun. The action was great.', ja: '結構楽しかった。アクションが良くて。',
-            choices: ['It was pretty fun. The action was great.', 'Fun fun me.', 'Yes good action good.'] },
-          { speaker: 'npc', en: 'Who was in it?', ja: '誰が出てた?' },
-          { speaker: 'you', en: 'I forget the lead actor\'s name.', ja: '主役の名前忘れちゃった。',
-            choices: ['I forget the lead actor\'s name.', 'Name name no me.', 'I no remember.'] },
-          { speaker: 'npc', en: 'Maybe I\'ll check it out tonight.', ja: '今夜見てみようかな。' },
-          { speaker: 'you', en: 'You should. Let me know what you think.', ja: 'ぜひ。感想教えて。',
-            choices: ['You should. Let me know what you think.', 'Yes you me know.', 'Think movie tonight.'] },
-          { speaker: 'npc', en: 'Will do. Anything else worth watching?', ja: '了解。他にもおすすめは?' },
-          { speaker: 'you', en: 'There\'s a new comedy show too.', ja: '新しいコメディ番組もあるよ。',
-            choices: ['There\'s a new comedy show too.', 'Comedy comedy.', 'I laugh much show.'] },
-          { speaker: 'npc', en: 'What\'s it called?', ja: '何ていうの?' },
-          { speaker: 'you', en: 'I think it\'s called Office Hours.', ja: '「オフィスアワーズ」だったかな。',
-            choices: ['I think it\'s called Office Hours.', 'Name yes office.', 'Office work me.'] },
-          { speaker: 'npc', en: 'Cool, I\'ll add it to my list.', ja: 'いいね、リストに入れる。' }
+        "id": "st3s5",
+        "title": "カード請求の確認",
+        "icon": "🧾",
+        "situation": "見覚えのないカード請求を確認する",
+        "dialogue": [
+          {
+            "speaker": "npc",
+            "en": "Thanks for calling. What can I help you with today?",
+            "ja": "お電話ありがとうございます。本日はどのようなご用件ですか？"
+          },
+          {
+            "speaker": "you",
+            "en": "I noticed a charge on my card that I do not recognize.",
+            "ja": "カードに見覚えのない請求があることに気づきました。",
+            "choices": [
+              "I noticed a charge on my card that I do not recognize.",
+              "I noticed a coffee on the counter that I did not order.",
+              "I noticed a room on my reservation that I did not choose.",
+              "I noticed a shirt in my bag that I did not buy."
+            ]
+          },
+          {
+            "speaker": "npc",
+            "en": "I can take a look. Do you have the date and amount?",
+            "ja": "確認します。日付と金額は分かりますか？"
+          },
+          {
+            "speaker": "you",
+            "en": "Yes, it was on Monday for thirty-two dollars and fifty cents.",
+            "ja": "はい、月曜日で32ドル50セントでした。",
+            "choices": [
+              "Yes, it was on Monday for thirty-two dollars and fifty cents.",
+              "Yes, it was in the lobby near the second-floor elevator.",
+              "Yes, it was with no onions and extra sauce on the side.",
+              "Yes, it was supposed to arrive before noon tomorrow."
+            ]
+          },
+          {
+            "speaker": "npc",
+            "en": "Thank you. I see the transaction, and I will check the merchant details.",
+            "ja": "ありがとうございます。取引が見えますので、加盟店情報を確認します。"
+          },
+          {
+            "speaker": "you",
+            "en": "I appreciate it. I just want to make sure it is not a mistake.",
+            "ja": "ありがとうございます。間違いではないか確認したいだけです。",
+            "choices": [
+              "I appreciate it. I just want to make sure it is not a mistake.",
+              "I appreciate it. I just want to make sure it is not too spicy.",
+              "I appreciate it. I just want to make sure it is not the wrong gate.",
+              "I appreciate it. I just want to make sure it is not too expensive."
+            ]
+          }
         ]
       }
     ]
   },
-
-  // ============================================================
-  // STAGE 4: 上級 (Lv 61-80) — 22〜26往復
-  // ============================================================
   {
-    id: 'st4', level: 61, levelRange: [61, 80],
-    title: 'Advanced', ja: '上級', emoji: '🏔️', color: '#7b4fd6',
-    description: '複数の場面が連結した長い会話',
-    turnHint: '22〜26往復',
-    situations: [
+    "id": "st4",
+    "level": 61,
+    "levelRange": [
+      61,
+      80
+    ],
+    "title": "上級",
+    "ja": "上級",
+    "emoji": "🏔️",
+    "color": "#7b4fd6",
+    "description": "Adult conversations with longer context and polite clarification.",
+    "turnHint": "18–25 words, context plus request",
+    "situations": [
       {
-        id: 'st4s1', title: 'レストラン通し会話', icon: '🍷',
-        situation: '入店〜注文〜食事中〜会計〜退店まで全部',
-        dialogue: [
-          { speaker: 'npc', en: 'Welcome! Table for how many?', ja: 'いらっしゃい!何名?' },
-          { speaker: 'you', en: 'Two of us.', ja: '2人です。',
-            choices: ['Two of us.', 'I am two.', 'Two clock.'] },
-          { speaker: 'npc', en: 'Right this way. Here are your menus.', ja: 'こちらへ。メニューです。' },
-          { speaker: 'you', en: 'Thank you. Could we get a few minutes?', ja: 'ありがとう。少し時間もらえる?',
-            choices: ['Thank you. Could we get a few minutes?', 'Minute minute me.', 'Wait me think.'] },
-          { speaker: 'npc', en: 'Of course. I\'ll be right back.', ja: 'もちろん。また戻ります。' },
-          { speaker: 'npc', en: 'Are you guys ready to order now?', ja: 'ご注文お決まり?' },
-          { speaker: 'you', en: 'Yes. I\'ll have the steak.', ja: 'はい。ステーキで。',
-            choices: ['Yes. I\'ll have the steak.', 'Steak yes me.', 'I love beef food.'] },
-          { speaker: 'npc', en: 'How would you like it cooked?', ja: '焼き加減は?' },
-          { speaker: 'you', en: 'Medium rare.', ja: 'ミディアムレアで。',
-            choices: ['Medium rare.', 'Rare medium yes.', 'I cook half.'] },
-          { speaker: 'npc', en: 'Great choice. And to drink?', ja: 'いいですね。飲み物は?' },
-          { speaker: 'you', en: 'A glass of red wine.', ja: '赤ワインを1杯。',
-            choices: ['A glass of red wine.', 'Wine wine red.', 'I drink grape.'] },
-          { speaker: 'npc', en: 'Coming right up.', ja: 'すぐお持ちします。' },
-          { speaker: 'npc', en: 'How is everything tasting?', ja: 'お味はいかがですか?' },
-          { speaker: 'you', en: 'It\'s delicious, thanks.', ja: '美味しいです、ありがとう。',
-            choices: ['It\'s delicious, thanks.', 'Yes food good.', 'Eat eat yes.'] },
-          { speaker: 'npc', en: 'Glad to hear it. Save room for dessert?', ja: '良かった。デザートはいかが?' },
-          { speaker: 'you', en: 'Maybe just coffee for me.', ja: 'コーヒーだけお願いします。',
-            choices: ['Maybe just coffee for me.', 'Coffee coffee yes.', 'I drink hot.'] },
-          { speaker: 'npc', en: 'I\'ll bring that out.', ja: 'お持ちします。' },
-          { speaker: 'you', en: 'Excuse me, could we get the check?', ja: 'すみません、お会計お願いします。',
-            choices: ['Excuse me, could we get the check?', 'Check check me.', 'I want money go.'] },
-          { speaker: 'npc', en: 'Of course. Cash or card?', ja: 'はい。現金?カード?' },
-          { speaker: 'you', en: 'Card. And could we split it?', ja: 'カードで。あと別会計できる?',
-            choices: ['Card. And could we split it?', 'Card split two please.', 'I you money two.'] },
-          { speaker: 'npc', en: 'Absolutely. One moment.', ja: 'もちろん。少々お待ちを。' },
-          { speaker: 'npc', en: 'Here you go. Have a great night!', ja: 'こちらです。良い夜を!' },
-          { speaker: 'you', en: 'You too. Thanks for everything.', ja: 'あなたも。色々ありがとう。',
-            choices: ['You too. Thanks for everything.', 'Night night yes.', 'Yes thank you.'] },
-          { speaker: 'npc', en: 'Come back soon!', ja: 'また来てください!' }
+        "id": "st4s1",
+        "title": "カフェで細かく注文",
+        "icon": "☕",
+        "situation": "好み・カフェイン・甘さを伝えて注文する",
+        "dialogue": [
+          {
+            "speaker": "npc",
+            "en": "Hi, welcome in. Are you looking for your usual, or would you like to try something new today?",
+            "ja": "いらっしゃいませ。いつものものをお探しですか？それとも今日は新しいものを試したいですか？"
+          },
+          {
+            "speaker": "you",
+            "en": "I usually drink iced coffee, but I want something a little smoother that will not keep me awake all night.",
+            "ja": "普段はアイスコーヒーを飲みますが、今夜眠れなくならないように、もう少し飲みやすいものがほしいです。",
+            "choices": [
+              "I usually drink iced coffee, but I want something a little smoother that will not keep me awake all night.",
+              "I usually take the subway downtown, but I want something a little faster that will not cost too much.",
+              "I usually stay near the airport, but I want something a little quieter that will not feel too far away.",
+              "I usually wear darker colors, but I want something a little lighter that will not look too formal."
+            ]
+          },
+          {
+            "speaker": "npc",
+            "en": "Our half-caf vanilla latte is a good option if you want coffee flavor without too much caffeine.",
+            "ja": "カフェインを控えつつコーヒー感がほしいなら、ハーフカフェのバニララテがおすすめです。"
+          },
+          {
+            "speaker": "you",
+            "en": "That sounds close to what I need. Could you make it iced and not too sweet?",
+            "ja": "ちょうどよさそうです。アイスで、甘すぎないようにできますか？",
+            "choices": [
+              "That sounds close to what I need. Could you make it iced and not too sweet?",
+              "That sounds close to what I need. Could you make the reservation for seven thirty?",
+              "That sounds close to what I need. Could you make sure the room is not near the elevator?",
+              "That sounds close to what I need. Could you make the return label available by email?"
+            ]
+          },
+          {
+            "speaker": "npc",
+            "en": "Absolutely. I can do half the usual syrup, or I can leave it out completely.",
+            "ja": "もちろんです。シロップを通常の半分にすることも、完全に抜くこともできます。"
+          },
+          {
+            "speaker": "you",
+            "en": "Half the syrup is perfect. I still want a little flavor, just not something sugary.",
+            "ja": "シロップ半分でちょうどいいです。少し風味はほしいですが、甘すぎるものは避けたいです。",
+            "choices": [
+              "Half the syrup is perfect. I still want a little flavor, just not something sugary.",
+              "Half the fare is perfect. I still want a little time, just not something delayed.",
+              "Half the room is perfect. I still want a little space, just not something huge.",
+              "Half the refund is perfect. I still want a little help, just not something complicated."
+            ]
+          }
         ]
       },
       {
-        id: 'st4s2', title: '空港チェックイン〜入国', icon: '🛂',
-        situation: 'カウンター〜搭乗案内〜入国審査',
-        dialogue: [
-          { speaker: 'npc', en: 'Good morning. Passport and ticket?', ja: 'おはようございます。パスポートとチケット。' },
-          { speaker: 'you', en: 'Here you go.', ja: 'はい、どうぞ。',
-            choices: ['Here you go.', 'I have me.', 'Yes papers.'] },
-          { speaker: 'npc', en: 'Are you checking any bags today?', ja: '預ける荷物は?' },
-          { speaker: 'you', en: 'Just one suitcase.', ja: 'スーツケース1つだけ。',
-            choices: ['Just one suitcase.', 'One one yes.', 'I have many.'] },
-          { speaker: 'npc', en: 'Place it on the scale.', ja: '量りに乗せて。' },
-          { speaker: 'you', en: 'Sure. Is it under the weight limit?', ja: 'はい。重さは大丈夫?',
-            choices: ['Sure. Is it under the weight limit?', 'Heavy heavy bag.', 'Weight no know me.'] },
-          { speaker: 'npc', en: 'You\'re good. Where would you like to sit?', ja: '大丈夫です。お席は?' },
-          { speaker: 'you', en: 'Window seat, if possible.', ja: 'できれば窓側で。',
-            choices: ['Window seat, if possible.', 'Window I want.', 'I sit anywhere me.'] },
-          { speaker: 'npc', en: 'I have one available. Vegetarian or regular meal?', ja: '空きがあります。ベジタリアン?通常食?' },
-          { speaker: 'you', en: 'Regular is fine.', ja: '通常で大丈夫。',
-            choices: ['Regular is fine.', 'Yes meat eat.', 'Vegetable no me.'] },
-          { speaker: 'npc', en: 'Here\'s your boarding pass. Gate B12.', ja: '搭乗券です。B12ゲートです。' },
-          { speaker: 'you', en: 'What time does boarding start?', ja: '搭乗は何時から?',
-            choices: ['What time does boarding start?', 'Boarding when me?', 'Time time fly?'] },
-          { speaker: 'npc', en: 'Around eleven thirty.', ja: '11時半頃です。' },
-          { speaker: 'you', en: 'How early should I be there?', ja: 'どれくらい前に行けば?',
-            choices: ['How early should I be there?', 'Early me how?', 'I go when me?'] },
-          { speaker: 'npc', en: 'Thirty minutes before.', ja: '30分前には。' },
-          { speaker: 'you', en: 'Got it. Thanks for your help!', ja: 'わかりました、ありがとう!',
-            choices: ['Got it. Thanks for your help!', 'Thirty before yes.', 'Help help good.'] },
-          { speaker: 'npc', en: '[Immigration] Passport. Purpose of visit?', ja: '【入国審査】パスポート。訪問目的は?' },
-          { speaker: 'you', en: 'Just sightseeing for a week.', ja: '1週間の観光です。',
-            choices: ['Just sightseeing for a week.', 'Week week see thing.', 'I see see week.'] },
-          { speaker: 'npc', en: 'Where are you staying?', ja: 'どこに滞在?' },
-          { speaker: 'you', en: 'At the Grand Hotel downtown.', ja: 'ダウンタウンのグランドホテル。',
-            choices: ['At the Grand Hotel downtown.', 'Hotel hotel grand.', 'I sleep good place.'] },
-          { speaker: 'npc', en: 'First time in this country?', ja: 'この国は初めて?' },
-          { speaker: 'you', en: 'Yes, my first visit.', ja: 'はい、初めてです。',
-            choices: ['Yes, my first visit.', 'First first me.', 'No I come.'] },
-          { speaker: 'npc', en: 'Welcome. Enjoy your stay.', ja: 'ようこそ。よい滞在を。' }
+        "id": "st4s2",
+        "title": "ホテルの部屋トラブル",
+        "icon": "🏨",
+        "situation": "エアコン不具合を説明して対応を相談する",
+        "dialogue": [
+          {
+            "speaker": "npc",
+            "en": "Good evening, front desk. How can I help you with your room tonight?",
+            "ja": "こんばんは、フロントです。今夜のお部屋についてどのようなご用件ですか？"
+          },
+          {
+            "speaker": "you",
+            "en": "Hi, I just checked into room 418, and the air conditioner does not seem to be working.",
+            "ja": "こんにちは。418号室にチェックインしたばかりですが、エアコンが動いていないようです。",
+            "choices": [
+              "Hi, I just checked into room 418, and the air conditioner does not seem to be working.",
+              "Hi, I just ordered the chicken sandwich, and the dressing does not seem to be on the side.",
+              "Hi, I just boarded the train downtown, and the next stop does not seem to be correct.",
+              "Hi, I just bought this jacket yesterday, and the zipper does not seem to be closing."
+            ]
+          },
+          {
+            "speaker": "npc",
+            "en": "I am sorry about that. Is it not turning on at all, or is it just not cooling?",
+            "ja": "申し訳ありません。まったく電源が入りませんか？それとも冷えないだけですか？"
+          },
+          {
+            "speaker": "you",
+            "en": "The display turns on, but the room is still warm even after I lowered the temperature.",
+            "ja": "表示は点きますが、温度を下げても部屋がまだ暑いです。",
+            "choices": [
+              "The display turns on, but the room is still warm even after I lowered the temperature.",
+              "The machine turns on, but the card is still declined even after I tried again.",
+              "The app turns on, but the map is still wrong even after I refreshed it.",
+              "The light turns on, but the hallway is still noisy even after I closed the door."
+            ]
+          },
+          {
+            "speaker": "npc",
+            "en": "Thank you for explaining. I can send maintenance up, or we can move you if needed.",
+            "ja": "ご説明ありがとうございます。メンテナンスを送ることも、必要ならお部屋を変更することもできます。"
+          },
+          {
+            "speaker": "you",
+            "en": "Maintenance is fine if they can come soon, but I would rather move rooms if it will take a while.",
+            "ja": "すぐ来られるならメンテナンスで大丈夫ですが、時間がかかるなら部屋を変えたいです。",
+            "choices": [
+              "Maintenance is fine if they can come soon, but I would rather move rooms if it will take a while.",
+              "The receipt is fine if you can email it soon, but I would rather print it if it will take a while.",
+              "The salad is fine if it has no nuts, but I would rather order soup if it will take a while.",
+              "The taxi is fine if it can arrive soon, but I would rather walk if it will take a while."
+            ]
+          }
         ]
       },
       {
-        id: 'st4s3', title: 'ホテル部屋変更', icon: '🔑',
-        situation: 'チェックイン後トラブル発覚〜部屋変更交渉',
-        dialogue: [
-          { speaker: 'npc', en: 'Welcome. Checking in?', ja: 'ようこそ。チェックインですか?' },
-          { speaker: 'you', en: 'Yes, my name is Tanaka.', ja: 'はい、タナカです。',
-            choices: ['Yes, my name is Tanaka.', 'Yes me Tanaka.', 'Name me Tanaka.'] },
-          { speaker: 'npc', en: 'Found you. Here\'s your key for room 502.', ja: 'ありました。502号室の鍵です。' },
-          { speaker: 'you', en: 'Where are the elevators?', ja: 'エレベーターはどこ?',
-            choices: ['Where are the elevators?', 'Up up where?', 'Elevator I go.'] },
-          { speaker: 'npc', en: 'Just around the corner.', ja: '角を曲がってすぐ。' },
-          { speaker: 'you', en: 'Thanks!', ja: 'ありがとう!',
-            choices: ['Thanks!', 'Corner corner.', 'Yes yes go.'] },
-          { speaker: 'you', en: 'Hi, sorry to come back. I\'m having trouble with my room.', ja: 'すみません、戻りました。部屋に問題が。',
-            choices: ['Hi, sorry to come back. I\'m having trouble with my room.', 'Back back me.', 'Room bad now.'] },
-          { speaker: 'npc', en: 'Oh no. What\'s wrong?', ja: 'ええ。どうしました?' },
-          { speaker: 'you', en: 'The air conditioning isn\'t working.', ja: 'エアコンが動かなくて。',
-            choices: ['The air conditioning isn\'t working.', 'Hot hot room me.', 'Air no good.'] },
-          { speaker: 'npc', en: 'I\'m so sorry. Let me send someone up.', ja: '申し訳ありません。すぐ人を送ります。' },
-          { speaker: 'you', en: 'How long until it\'s fixed?', ja: 'どれくらいで直る?',
-            choices: ['How long until it\'s fixed?', 'Fix fix when me?', 'Long long time?'] },
-          { speaker: 'npc', en: 'About fifteen minutes.', ja: '15分ほどです。' },
-          { speaker: 'you', en: 'Could I switch rooms instead?', ja: '代わりに部屋変えてもらえる?',
-            choices: ['Could I switch rooms instead?', 'Other room me.', 'Change change please.'] },
-          { speaker: 'npc', en: 'Of course. We have a similar room available.', ja: 'もちろん。似た部屋があります。' },
-          { speaker: 'you', en: 'That would be great. What room?', ja: '助かります。何号室?',
-            choices: ['That would be great. What room?', 'Great great yes.', 'Room what me?'] },
-          { speaker: 'npc', en: 'Room 510, same floor.', ja: '510号室、同じ階です。' },
-          { speaker: 'you', en: 'Same view?', ja: '景色も同じ?',
-            choices: ['Same view?', 'See see same?', 'Window window?'] },
-          { speaker: 'npc', en: 'Yes, even better actually.', ja: 'はい、むしろ良いくらい。' },
-          { speaker: 'you', en: 'Perfect. Thank you so much.', ja: '完璧、本当にありがとう。',
-            choices: ['Perfect. Thank you so much.', 'Perfect view yes.', 'Better better good.'] },
-          { speaker: 'npc', en: 'Sorry for the inconvenience. Here\'s your new key.', ja: 'ご迷惑をおかけしました。新しい鍵です。' },
-          { speaker: 'you', en: 'No worries. Thanks again.', ja: '大丈夫です、改めてありがとう。',
-            choices: ['No worries. Thanks again.', 'Worry no me.', 'Again again me.'] }
+        "id": "st4s3",
+        "title": "会食での雑談",
+        "icon": "🍷",
+        "situation": "食事の話から仕事の近況につなげる",
+        "dialogue": [
+          {
+            "speaker": "npc",
+            "en": "It is nice to finally meet outside the office. Have you been to this restaurant before?",
+            "ja": "職場の外でやっと会えて嬉しいです。このレストランには来たことがありますか？"
+          },
+          {
+            "speaker": "you",
+            "en": "No, this is my first time here, but I have heard good things about the pasta.",
+            "ja": "いえ、ここは初めてですが、パスタが評判だと聞いています。",
+            "choices": [
+              "No, this is my first time here, but I have heard good things about the pasta.",
+              "No, this is my first stop here, but I have heard the train comes often.",
+              "No, this is my first room here, but I have heard the hotel is quiet.",
+              "No, this is my first return here, but I have heard the policy is simple."
+            ]
+          },
+          {
+            "speaker": "npc",
+            "en": "The pasta is great, and the seafood dishes are usually good too if you like that.",
+            "ja": "パスタはおいしいですし、シーフードが好きならそちらもたいてい良いですよ。"
+          },
+          {
+            "speaker": "you",
+            "en": "I might try the seafood, then. I am trying to avoid anything too heavy tonight.",
+            "ja": "それならシーフードにしてみるかもしれません。今夜は重すぎるものを避けたいです。",
+            "choices": [
+              "I might try the seafood, then. I am trying to avoid anything too heavy tonight.",
+              "I might try the subway, then. I am trying to avoid anything too expensive tonight.",
+              "I might try the lobby, then. I am trying to avoid anything too noisy tonight.",
+              "I might try the blue one, then. I am trying to avoid anything too formal tonight."
+            ]
+          },
+          {
+            "speaker": "npc",
+            "en": "That makes sense. By the way, how has the new project been going for your team?",
+            "ja": "それはいいですね。ところで、新しいプロジェクトはチームでどう進んでいますか？"
+          },
+          {
+            "speaker": "you",
+            "en": "It has been busy, but the direction is much clearer now than it was at the start.",
+            "ja": "忙しいですが、始まった頃より今は方向性がかなり明確になっています。",
+            "choices": [
+              "It has been busy, but the direction is much clearer now than it was at the start.",
+              "It has been sweet, but the coffee is much stronger now than it was at the start.",
+              "It has been crowded, but the station is much calmer now than it was at the start.",
+              "It has been expensive, but the hotel is much cheaper now than it was at the start."
+            ]
+          }
         ]
       },
       {
-        id: 'st4s4', title: '友達と映画相談', icon: '🎬',
-        situation: '映画選び〜時間〜食事〜待ち合わせまで',
-        dialogue: [
-          { speaker: 'npc', en: 'Hey, want to see a movie tonight?', ja: 'ねえ、今夜映画見ない?' },
-          { speaker: 'you', en: 'Sure, what\'s playing?', ja: 'いいね、何やってる?',
-            choices: ['Sure, what\'s playing?', 'Yes I see what.', 'Movie play me.'] },
-          { speaker: 'npc', en: 'There\'s a new sci-fi at the Plaza.', ja: 'プラザで新しいSFが。' },
-          { speaker: 'you', en: 'What\'s it called?', ja: '何ていうの?',
-            choices: ['What\'s it called?', 'Name me?', 'Title title?'] },
-          { speaker: 'npc', en: 'Star Bound. It\'s getting good reviews.', ja: '「スターバウンド」。評判いいよ。' },
-          { speaker: 'you', en: 'Sounds cool. What time?', ja: 'いいね、何時?',
-            choices: ['Sounds cool. What time?', 'Cool me yes.', 'Time time when?'] },
-          { speaker: 'npc', en: 'Seven or nine.', ja: '7時か9時。' },
-          { speaker: 'you', en: 'Let\'s do nine. I want to eat first.', ja: '9時にしよう。先にご飯。',
-            choices: ['Let\'s do nine. I want to eat first.', 'Nine yes me eat.', 'Food first nine.'] },
-          { speaker: 'npc', en: 'Good plan. Where do you want to eat?', ja: 'いいね。どこで食べる?' },
-          { speaker: 'you', en: 'How about Italian?', ja: 'イタリアンは?',
-            choices: ['How about Italian?', 'Italy Italy yes.', 'I love pasta you?'] },
-          { speaker: 'npc', en: 'There\'s a great place near the cinema.', ja: '映画館の近くに良い店ある。' },
-          { speaker: 'you', en: 'What\'s it called?', ja: '何ていう店?',
-            choices: ['What\'s it called?', 'Place place me?', 'Tell name me.'] },
-          { speaker: 'npc', en: 'Mama Lucia\'s.', ja: '「ママルチアズ」。' },
-          { speaker: 'you', en: 'Perfect. What time should we meet?', ja: 'いいね。何時に集合?',
-            choices: ['Perfect. What time should we meet?', 'Meet meet when?', 'Time we how?'] },
-          { speaker: 'npc', en: 'Six thirty?', ja: '6時半?' },
-          { speaker: 'you', en: 'Works for me.', ja: '大丈夫。',
-            choices: ['Works for me.', 'Six work yes.', 'I am six.'] },
-          { speaker: 'npc', en: 'I\'ll book the movie tickets.', ja: '映画のチケット取るね。' },
-          { speaker: 'you', en: 'Cool, I\'ll book the restaurant.', ja: 'いいね、お店予約するよ。',
-            choices: ['Cool, I\'ll book the restaurant.', 'I take place yes.', 'Restaurant me book.'] },
-          { speaker: 'npc', en: 'Sounds good. See you then.', ja: '了解。じゃあその時に。' },
-          { speaker: 'you', en: 'Looking forward to it!', ja: '楽しみ!',
-            choices: ['Looking forward to it!', 'Look look me!', 'Forward yes go!'] },
-          { speaker: 'npc', en: 'Me too. Bye!', ja: '私も。じゃあね!' },
-          { speaker: 'you', en: 'Bye!', ja: 'バイ!',
-            choices: ['Bye!', 'See me yes.', 'Go home now.'] }
+        "id": "st4s4",
+        "title": "ネット回線の修理相談",
+        "icon": "🔧",
+        "situation": "接続不良と訪問修理の希望を伝える",
+        "dialogue": [
+          {
+            "speaker": "npc",
+            "en": "Thanks for calling. I see you requested service for your internet connection. What seems to be happening?",
+            "ja": "お電話ありがとうございます。インターネット接続の修理依頼を確認しています。どのような状況ですか？"
+          },
+          {
+            "speaker": "you",
+            "en": "The connection keeps dropping every few minutes, especially when I am on a video call for work.",
+            "ja": "接続が数分ごとに切れます。特に仕事のビデオ通話中に起こります。",
+            "choices": [
+              "The connection keeps dropping every few minutes, especially when I am on a video call for work.",
+              "The coffee keeps spilling every few minutes, especially when I am walking to the office.",
+              "The train keeps stopping every few minutes, especially when I am close to the airport.",
+              "The jacket keeps opening every few minutes, especially when I am carrying a bag."
+            ]
+          },
+          {
+            "speaker": "npc",
+            "en": "That sounds frustrating. We can send a technician tomorrow morning between eight and ten.",
+            "ja": "それは困りますね。明日の午前8時から10時の間に技術者を送れます。"
+          },
+          {
+            "speaker": "you",
+            "en": "Tomorrow morning works, but could they call before arriving so I can be ready?",
+            "ja": "明日の朝で大丈夫ですが、到着前に電話してもらえますか？準備しておきたいです。",
+            "choices": [
+              "Tomorrow morning works, but could they call before arriving so I can be ready?",
+              "Tomorrow morning works, but could they cook before serving so I can eat quickly?",
+              "Tomorrow morning works, but could they board before closing so I can make the flight?",
+              "Tomorrow morning works, but could they wash before packing so I can wear it soon?"
+            ]
+          },
+          {
+            "speaker": "npc",
+            "en": "Yes, I can add that note to the appointment for the technician.",
+            "ja": "はい、そのメモを技術者向けの予約情報に追加できます。"
+          },
+          {
+            "speaker": "you",
+            "en": "Thank you. If the issue is outside the apartment, will I still need to be home?",
+            "ja": "ありがとうございます。もし問題が部屋の外にある場合でも、家にいる必要がありますか？",
+            "choices": [
+              "Thank you. If the issue is outside the apartment, will I still need to be home?",
+              "Thank you. If the sauce is outside the sandwich, will I still need to order more?",
+              "Thank you. If the gate is outside the terminal, will I still need to check in?",
+              "Thank you. If the label is outside the package, will I still need to return it?"
+            ]
+          }
         ]
       },
       {
-        id: 'st4s5', title: '服を試着して購入', icon: '👕',
-        situation: '探す〜試着〜サイズ違う〜購入〜ラッピング',
-        dialogue: [
-          { speaker: 'npc', en: 'Hi! Looking for anything specific?', ja: 'いらっしゃい!何かお探し?' },
-          { speaker: 'you', en: 'Yes, a jacket for fall.', ja: 'はい、秋のジャケットを。',
-            choices: ['Yes, a jacket for fall.', 'Jacket jacket me.', 'I want fall thing.'] },
-          { speaker: 'npc', en: 'We have new arrivals over here.', ja: 'こちらに新作が。' },
-          { speaker: 'you', en: 'I like this one. Do you have it in medium?', ja: 'これがいい。Mサイズある?',
-            choices: ['I like this one. Do you have it in medium?', 'Medium medium yes?', 'I am medium me.'] },
-          { speaker: 'npc', en: 'Let me check. Yes, here you go.', ja: '確認します。ありました。' },
-          { speaker: 'you', en: 'Could I try it on?', ja: '試着できる?',
-            choices: ['Could I try it on?', 'Try try wear me.', 'I wear now please.'] },
-          { speaker: 'npc', en: 'Of course. The fitting room is on the right.', ja: 'もちろん。試着室は右です。' },
-          { speaker: 'you', en: 'Thanks.', ja: 'ありがとう。',
-            choices: ['Thanks.', 'Right right yes.', 'Fit fit me.'] },
-          { speaker: 'you', en: 'It\'s a bit tight in the shoulders.', ja: '肩がちょっときつい。',
-            choices: ['It\'s a bit tight in the shoulders.', 'Shoulder shoulder me.', 'Big big no.'] },
-          { speaker: 'npc', en: 'Want to try the next size up?', ja: '一つ上のサイズ試す?' },
-          { speaker: 'you', en: 'Yes, please. A large.', ja: 'お願いします。Lで。',
-            choices: ['Yes, please. A large.', 'Large yes me.', 'L L L please.'] },
-          { speaker: 'npc', en: 'Here you are.', ja: 'どうぞ。' },
-          { speaker: 'you', en: 'This one fits perfectly!', ja: 'これピッタリ!',
-            choices: ['This one fits perfectly!', 'Fit fit good!', 'Yes me good!'] },
-          { speaker: 'npc', en: 'It looks great on you.', ja: 'お似合いですよ。' },
-          { speaker: 'you', en: 'Thanks. I\'ll take it.', ja: 'ありがとう。これにします。',
-            choices: ['Thanks. I\'ll take it.', 'I take this me.', 'Buy buy yes.'] },
-          { speaker: 'npc', en: 'Anything else for you today?', ja: '他にも何か?' },
-          { speaker: 'you', en: 'Not today. How much is it?', ja: '今日はこれだけ。いくら?',
-            choices: ['Not today. How much is it?', 'How much me?', 'Money money tell.'] },
-          { speaker: 'npc', en: 'It\'s eighty dollars.', ja: '80ドルです。' },
-          { speaker: 'you', en: 'I\'ll pay by card.', ja: 'カードで。',
-            choices: ['I\'ll pay by card.', 'Card card me.', 'I have money no.'] },
-          { speaker: 'npc', en: 'Would you like it gift wrapped?', ja: 'プレゼント包装されますか?' },
-          { speaker: 'you', en: 'Yes, that would be great.', ja: 'はい、お願いします。',
-            choices: ['Yes, that would be great.', 'Gift gift yes.', 'Wrap wrap please.'] },
-          { speaker: 'npc', en: 'Coming right up!', ja: 'すぐご用意します!' }
+        "id": "st4s5",
+        "title": "誤解を解く",
+        "icon": "💬",
+        "situation": "冷たく見えたメッセージの意図を説明する",
+        "dialogue": [
+          {
+            "speaker": "npc",
+            "en": "I wanted to ask about yesterday, because I was not sure if I misunderstood your message.",
+            "ja": "昨日のことを聞きたかったです。あなたのメッセージを誤解したかもしれないと思ったので。"
+          },
+          {
+            "speaker": "you",
+            "en": "I am glad you asked. I think my message came across colder than I meant it to.",
+            "ja": "聞いてくれてよかったです。私のメッセージは意図より冷たく伝わったと思います。",
+            "choices": [
+              "I am glad you asked. I think my message came across colder than I meant it to.",
+              "I am glad you asked. I think my coffee came out stronger than I expected it to.",
+              "I am glad you asked. I think my train arrived later than the schedule said it would.",
+              "I am glad you asked. I think my hotel room looked smaller than the photos showed it would."
+            ]
+          },
+          {
+            "speaker": "npc",
+            "en": "That makes sense. I just wanted to be sure there was not a problem.",
+            "ja": "なるほど。問題がなかったか確認したかっただけです。"
+          },
+          {
+            "speaker": "you",
+            "en": "There is no problem at all. I was in a rush and did not choose my words carefully.",
+            "ja": "まったく問題ありません。急いでいて、言葉を慎重に選べませんでした。",
+            "choices": [
+              "There is no problem at all. I was in a rush and did not choose my words carefully.",
+              "There is no room at all. I was in a hurry and did not choose the hotel carefully.",
+              "There is no train at all. I was in a rush and did not choose the station carefully.",
+              "There is no receipt at all. I was in a hurry and did not choose the store carefully."
+            ]
+          },
+          {
+            "speaker": "npc",
+            "en": "I appreciate you explaining. I did not want to assume anything.",
+            "ja": "説明してくれてありがとう。勝手に決めつけたくありませんでした。"
+          },
+          {
+            "speaker": "you",
+            "en": "Thanks for checking instead of holding it in. I would rather talk things through directly.",
+            "ja": "抱え込まずに確認してくれてありがとう。直接話して解決する方がいいです。",
+            "choices": [
+              "Thanks for checking instead of holding it in. I would rather talk things through directly.",
+              "Thanks for checking instead of charging it again. I would rather pay things through online.",
+              "Thanks for checking instead of waiting outside. I would rather take things through security.",
+              "Thanks for checking instead of sending it back. I would rather return things through the store."
+            ]
+          }
         ]
       }
     ]
   },
-
-  // ============================================================
-  // STAGE 5: マスター (Lv 81-100) — 30〜34往復
-  // ============================================================
   {
-    id: 'st5', level: 81, levelRange: [81, 100],
-    title: 'Master', ja: 'マスター', emoji: '👑', color: '#f5b400',
-    description: '超長文の複合シーンを最後まで完走',
-    turnHint: '30〜34往復',
-    situations: [
+    "id": "st5",
+    "level": 81,
+    "levelRange": [
+      81,
+      100
+    ],
+    "title": "実践",
+    "ja": "実践",
+    "emoji": "🏆",
+    "color": "#f5b400",
+    "description": "Long adult native-style turns with context, nuance, and follow-up.",
+    "turnHint": "25–35 words, natural extended turns",
+    "situations": [
       {
-        id: 'st5s1', title: '海外到着〜ホテル', icon: '🌍',
-        situation: '入国〜タクシー〜ホテルチェックインの完全通し',
-        dialogue: [
-          { speaker: 'npc', en: 'Passport, please.', ja: 'パスポートを。' },
-          { speaker: 'you', en: 'Here you are.', ja: 'はい、どうぞ。',
-            choices: ['Here you are.', 'Yes me here.', 'Passport passport.'] },
-          { speaker: 'npc', en: 'Purpose of your visit?', ja: '訪問目的は?' },
-          { speaker: 'you', en: 'I\'m here on vacation for a week.', ja: '1週間の観光で。',
-            choices: ['I\'m here on vacation for a week.', 'Vacation week one.', 'I see thing seven.'] },
-          { speaker: 'npc', en: 'Where will you be staying?', ja: 'どこに滞在?' },
-          { speaker: 'you', en: 'At the Grand Plaza Hotel downtown.', ja: 'ダウンタウンのグランドプラザホテル。',
-            choices: ['At the Grand Plaza Hotel downtown.', 'Hotel hotel grand.', 'I sleep good place.'] },
-          { speaker: 'npc', en: 'First time in this country?', ja: 'この国は初めて?' },
-          { speaker: 'you', en: 'Yes, my first time.', ja: 'はい、初めてです。',
-            choices: ['Yes, my first time.', 'First first me.', 'Yes I no come.'] },
-          { speaker: 'npc', en: 'Do you have any food or plants in your luggage?', ja: '荷物に食品や植物は?' },
-          { speaker: 'you', en: 'No, just clothes and toiletries.', ja: 'いえ、服と洗面用具だけ。',
-            choices: ['No, just clothes and toiletries.', 'No food me.', 'Plant plant no.'] },
-          { speaker: 'npc', en: 'Welcome. Enjoy your stay.', ja: 'ようこそ。よい滞在を。' },
-          { speaker: 'you', en: 'Thank you.', ja: 'ありがとう。',
-            choices: ['Thank you.', 'Yes welcome.', 'You stay yes.'] },
-          { speaker: 'you', en: 'Excuse me, are you available?', ja: 'すみません、空いてますか?',
-            choices: ['Excuse me, are you available?', 'Taxi taxi me?', 'You free yes?'] },
-          { speaker: 'npc', en: 'Yes, where to?', ja: 'はい、どちらまで?' },
-          { speaker: 'you', en: 'To the Grand Plaza Hotel downtown.', ja: 'ダウンタウンのグランドプラザホテル。',
-            choices: ['To the Grand Plaza Hotel downtown.', 'Hotel grand please.', 'I want hotel.'] },
-          { speaker: 'npc', en: 'Sure. Do you know which street?', ja: 'はい。住所はわかります?' },
-          { speaker: 'you', en: 'Main Street, I think.', ja: 'メインストリート、たぶん。',
-            choices: ['Main Street, I think.', 'Street street main.', 'I no know street.'] },
-          { speaker: 'npc', en: 'Got it. About thirty minutes with traffic.', ja: 'わかりました。渋滞込みで30分ほど。' },
-          { speaker: 'you', en: 'How much will it cost?', ja: 'いくらかかる?',
-            choices: ['How much will it cost?', 'Money money?', 'Cost cost tell me.'] },
-          { speaker: 'npc', en: 'Around forty dollars.', ja: '40ドルくらい。' },
-          { speaker: 'you', en: 'That\'s fine. I\'ll pay by card.', ja: '大丈夫です。カードで。',
-            choices: ['That\'s fine. I\'ll pay by card.', 'Card card good.', 'Forty good me.'] },
-          { speaker: 'npc', en: 'We accept cards in the back seat.', ja: '後部座席でカード使えます。' },
-          { speaker: 'you', en: 'Perfect.', ja: '完璧。',
-            choices: ['Perfect.', 'Good good me.', 'Card back seat.'] },
-          { speaker: 'npc', en: 'Welcome to the Grand Plaza. Checking in?', ja: 'ようこそ。チェックインですか?' },
-          { speaker: 'you', en: 'Yes, my name is Tanaka.', ja: 'はい、タナカです。',
-            choices: ['Yes, my name is Tanaka.', 'Yes me check.', 'Tanaka me yes.'] },
-          { speaker: 'npc', en: 'Found you. Here\'s your key for room 1205.', ja: 'ありました。1205号室の鍵です。' },
-          { speaker: 'you', en: 'What time does breakfast start?', ja: '朝食は何時から?',
-            choices: ['What time does breakfast start?', 'Eat morning when?', 'Breakfast time?'] },
-          { speaker: 'npc', en: 'Six thirty in the main restaurant.', ja: 'メインレストランで6時半から。' },
-          { speaker: 'you', en: 'Where\'s the elevator?', ja: 'エレベーターは?',
-            choices: ['Where\'s the elevator?', 'Up up where?', 'Elevator me?'] },
-          { speaker: 'npc', en: 'Right behind you, on your left.', ja: 'すぐ後ろ、左側です。' },
-          { speaker: 'you', en: 'Thank you so much.', ja: '本当にありがとう。',
-            choices: ['Thank you so much.', 'You me thank.', 'So me thank.'] },
-          { speaker: 'npc', en: 'Have a wonderful stay!', ja: '素敵な滞在を!' }
+        "id": "st5s1",
+        "title": "乗り継ぎ便の変更",
+        "icon": "✈️",
+        "situation": "遅延で乗り継ぎを逃し代替便と費用を確認する",
+        "dialogue": [
+          {
+            "speaker": "npc",
+            "en": "I can see your first flight arrived late, so I’m going to check the remaining options while you’re here and see whether we can protect your connection tonight.",
+            "ja": "最初の便が遅れて到着したことが確認できますので、残っている選択肢を確認し、今夜の乗り継ぎを確保できるか見てみます。"
+          },
+          {
+            "speaker": "you",
+            "en": "Thank you. Since the first flight was delayed, I missed my connection, and I’m hoping there is still another flight I can take tonight without changing airports or losing the whole evening.",
+            "ja": "ありがとうございます。最初の便が遅れたため乗り継ぎに間に合わなかったので、空港を変えずに今夜まだ乗れる別便があると助かります。",
+            "choices": [
+              "Thank you. Since the first flight was delayed, I missed my connection, and I’m hoping there is still another flight I can take tonight without changing airports or losing the whole evening.",
+              "Thank you. Since the restaurant was extremely busy, I missed my reservation, and I’m hoping there is still another table we can take tonight without waiting outside.",
+              "Thank you. Since the service window was delayed, I missed my appointment, and I’m hoping there is still another technician who can come today.",
+              "Thank you. Since the payment system was down, I missed the deadline, and I’m hoping there is still another way to complete it tonight."
+            ]
+          },
+          {
+            "speaker": "npc",
+            "en": "There is one later tonight with limited seats, but I need to check your fare rules before I can confirm whether the change is covered.",
+            "ja": "今夜遅くに座席数の少ない便がありますが、変更が対象になるか確認する前に、お客様の運賃ルールを確認する必要があります。"
+          },
+          {
+            "speaker": "you",
+            "en": "That makes sense. If the change is not covered automatically, could you explain the cost before making any changes to my booking?",
+            "ja": "分かりました。変更が自動的に対象にならない場合、予約を変更する前に費用を説明してもらえますか？",
+            "choices": [
+              "That makes sense. If the change is not covered automatically, could you explain the cost before making any changes to my booking?",
+              "That makes sense. If the meal is not included automatically, could you explain the price before bringing anything extra to the table?",
+              "That makes sense. If the repair is not covered automatically, could you explain the cost before sending anyone to my apartment?",
+              "That makes sense. If the refund is not approved automatically, could you explain the reason before closing the request?"
+            ]
+          },
+          {
+            "speaker": "npc",
+            "en": "Of course. I will not change anything without confirming it with you first, especially since this was caused by an earlier delay.",
+            "ja": "もちろんです。特に今回が前の遅延によるものなので、まずお客様に確認せずに何も変更しません。"
+          },
+          {
+            "speaker": "you",
+            "en": "I appreciate that. I also need to let my team know whether I will arrive tonight or tomorrow morning, so timing matters.",
+            "ja": "ありがとうございます。今夜到着するのか明日の朝になるのかをチームに知らせる必要があるので、時間が重要です。",
+            "choices": [
+              "I appreciate that. I also need to let my team know whether I will arrive tonight or tomorrow morning, so timing matters.",
+              "I appreciate that. I also need to let my friends know whether dinner is happening tonight or tomorrow, so timing matters.",
+              "I appreciate that. I also need to let my landlord know whether the repair is happening today or tomorrow, so timing matters.",
+              "I appreciate that. I also need to let the store know whether I am returning it today or next week, so timing matters."
+            ]
+          }
         ]
       },
       {
-        id: 'st5s2', title: 'ビジネス会食での雑談', icon: '🥂',
-        situation: '紹介〜雑談〜商談〜デザートまでの長丁場',
-        dialogue: [
-          { speaker: 'npc', en: 'Tanaka-san, thanks for joining us tonight.', ja: 'タナカさん、今夜はありがとう。' },
-          { speaker: 'you', en: 'Thank you for the invitation.', ja: 'お招きありがとうございます。',
-            choices: ['Thank you for the invitation.', 'You me thank invite.', 'Yes I come thank.'] },
-          { speaker: 'npc', en: 'How was your flight from Tokyo?', ja: '東京からのフライトは?' },
-          { speaker: 'you', en: 'It was long but smooth.', ja: '長かったけど快適でした。',
-            choices: ['It was long but smooth.', 'Long long me yes.', 'Plane good me.'] },
-          { speaker: 'npc', en: 'First time in New York?', ja: 'ニューヨークは初めて?' },
-          { speaker: 'you', en: 'Yes, I\'m excited to be here.', ja: 'はい、嬉しいです。',
-            choices: ['Yes, I\'m excited to be here.', 'Yes first happy me.', 'I happy first.'] },
-          { speaker: 'npc', en: 'Let me introduce my colleague Sarah.', ja: '同僚のサラを紹介します。' },
-          { speaker: 'you', en: 'Nice to meet you, Sarah.', ja: 'はじめまして、サラさん。',
-            choices: ['Nice to meet you, Sarah.', 'Sarah me hello.', 'You sister you?'] },
-          { speaker: 'npc', en: 'Pleasure to meet you, Tanaka-san.', ja: 'こちらこそ、タナカさん。' },
-          { speaker: 'you', en: 'Likewise.', ja: 'こちらこそ。',
-            choices: ['Likewise.', 'You good me.', 'Yes nice yes.'] },
-          { speaker: 'npc', en: 'Please order whatever looks good.', ja: 'お好きなものをどうぞ。' },
-          { speaker: 'you', en: 'I\'ll have the salmon.', ja: 'サーモンで。',
-            choices: ['I\'ll have the salmon.', 'Salmon salmon me eat.', 'I want fish yes.'] },
-          { speaker: 'npc', en: 'Excellent choice. So, about the project...', ja: 'いいですね。さて、プロジェクトの件で。' },
-          { speaker: 'you', en: 'Yes, I wanted to discuss the timeline.', ja: 'はい、スケジュールの相談を。',
-            choices: ['Yes, I wanted to discuss the timeline.', 'Time line yes me.', 'I talk plan now.'] },
-          { speaker: 'npc', en: 'We\'re hoping to launch by Q3.', ja: '第3四半期にローンチしたい。' },
-          { speaker: 'you', en: 'That\'s tight. Is there room for adjustment?', ja: 'タイトですね。調整の余地は?',
-            choices: ['That\'s tight. Is there room for adjustment?', 'Tight no room?', 'I no can fast.'] },
-          { speaker: 'npc', en: 'What do you propose?', ja: 'ご提案は?' },
-          { speaker: 'you', en: 'Maybe push to October to ensure quality.', ja: '品質確保で10月まで延ばしては。',
-            choices: ['Maybe push to October to ensure quality.', 'October good quality.', 'Push push yes.'] },
-          { speaker: 'npc', en: 'Let me discuss with my team.', ja: 'チームと話します。' },
-          { speaker: 'you', en: 'Sounds good. Thanks for being flexible.', ja: '柔軟にありがとう。',
-            choices: ['Sounds good. Thanks for being flexible.', 'Flex flex thank.', 'Sound good me you.'] },
-          { speaker: 'npc', en: 'Of course. Now, let\'s enjoy dinner.', ja: 'もちろん。さあ食事を。' },
-          { speaker: 'you', en: 'This salmon looks amazing.', ja: 'このサーモン美味しそう。',
-            choices: ['This salmon looks amazing.', 'Look look food.', 'Eat eat happy!'] },
-          { speaker: 'npc', en: 'Their food is the best in the area.', ja: 'この辺で一番美味しいよ。' },
-          { speaker: 'you', en: 'I can see why.', ja: 'わかります。',
-            choices: ['I can see why.', 'Why why?', 'I see why me.'] },
-          { speaker: 'npc', en: 'How long are you staying in town?', ja: '滞在はどれくらい?' },
-          { speaker: 'you', en: 'Just three days, then back to Tokyo.', ja: '3日だけで東京に戻ります。',
-            choices: ['Just three days, then back to Tokyo.', 'Three day me Tokyo.', 'I go back yes.'] },
-          { speaker: 'npc', en: 'That\'s a quick trip. Any sightseeing planned?', ja: '短いですね。観光の予定は?' },
-          { speaker: 'you', en: 'Just whatever I can fit in.', ja: '入れられる分だけ。',
-            choices: ['Just whatever I can fit in.', 'Fit fit me yes.', 'See see when?'] },
-          { speaker: 'npc', en: 'I can recommend a few spots.', ja: 'いくつかおすすめできますよ。' },
-          { speaker: 'you', en: 'That would be wonderful, thank you.', ja: 'それは助かります、ありがとう。',
-            choices: ['That would be wonderful, thank you.', 'Recommend yes me.', 'Spot spot good!'] }
+        "id": "st5s2",
+        "title": "水漏れの修理相談",
+        "icon": "🏠",
+        "situation": "シンク下の水漏れ状況を説明して修理日程を決める",
+        "dialogue": [
+          {
+            "speaker": "npc",
+            "en": "Thanks for letting me know about the leak. Can you walk me through when you noticed it, where the water appears, and whether it is still coming out now?",
+            "ja": "水漏れについて知らせてくれてありがとうございます。いつ気づいたか、今も水が出ているかを順番に説明してもらえますか？"
+          },
+          {
+            "speaker": "you",
+            "en": "I first noticed it last night under the kitchen sink, and this morning the cabinet floor was still damp even though I had put a towel down.",
+            "ja": "昨夜キッチンのシンク下で最初に気づき、タオルを敷いていたにもかかわらず今朝もキャビネットの床がまだ湿っていました。",
+            "choices": [
+              "I first noticed it last night under the kitchen sink, and this morning the cabinet floor was still damp even though I had put a towel down.",
+              "I first noticed it yesterday at the coffee shop, and this morning the drink still tasted too sweet even though I had asked for less syrup.",
+              "I first noticed it last week near the airport, and this morning the flight was still delayed even though the schedule had already changed.",
+              "I first noticed it yesterday at the store, and this morning the jacket still felt too small even though I tried a different size."
+            ]
+          },
+          {
+            "speaker": "npc",
+            "en": "That sounds like it needs attention soon. I can try to send a plumber this afternoon, but I want to make sure it is not an emergency.",
+            "ja": "早めの対応が必要そうですね。今日の午後に配管業者を送れるか試しますが、緊急ではないか確認したいです。"
+          },
+          {
+            "speaker": "you",
+            "en": "There is not a steady stream, but a small amount keeps collecting, so I am avoiding the sink and keeping a towel underneath it.",
+            "ja": "水が流れ続けているわけではありませんが、少量がたまり続けるので、シンクを使わず下にタオルを置いています。",
+            "choices": [
+              "There is not a steady stream, but a small amount keeps collecting, so I am avoiding the sink and keeping a towel underneath it.",
+              "There is not a direct train, but a later one keeps running, so I am avoiding the express line and waiting near the platform.",
+              "There is not a regular table, but a small booth keeps opening, so I am avoiding the crowded bar and staying near the host stand.",
+              "There is not a full refund, but a store credit keeps applying, so I am avoiding another purchase until I understand the policy."
+            ]
+          },
+          {
+            "speaker": "npc",
+            "en": "That is the right thing to do for now. If the plumber can come after three, will someone be there to let them in?",
+            "ja": "今のところそれで合っています。配管業者が3時以降に来られる場合、誰か中に入れられますか？"
+          },
+          {
+            "speaker": "you",
+            "en": "Yes, I can be home after three, and I can also send a photo if that helps the plumber understand the issue before arriving.",
+            "ja": "はい、3時以降なら家にいられますし、到着前に配管業者が状況を理解する助けになるなら写真も送れます。",
+            "choices": [
+              "Yes, I can be home after three, and I can also send a photo if that helps the plumber understand the issue before arriving.",
+              "Yes, I can be there after three, and I can also send the address if that helps everyone find the restaurant before dinner.",
+              "Yes, I can be available after three, and I can also send the receipt if that helps the store process the return faster.",
+              "Yes, I can be online after three, and I can also send the notes if that helps the team prepare before the meeting."
+            ]
+          }
         ]
       },
       {
-        id: 'st5s3', title: '飛行機遅延の対応', icon: '⏰',
-        situation: '遅延発覚から代替便・ミール券まで',
-        dialogue: [
-          { speaker: 'npc', en: 'Attention passengers, flight 723 is delayed.', ja: 'ご案内、723便は遅延中です。' },
-          { speaker: 'you', en: 'Excuse me, what\'s the new departure time?', ja: 'すみません、新しい出発時間は?',
-            choices: ['Excuse me, what\'s the new departure time?', 'When go now me?', 'Plane time when?'] },
-          { speaker: 'npc', en: 'We don\'t have an exact time yet.', ja: 'まだ確定していません。' },
-          { speaker: 'you', en: 'Why is the flight delayed?', ja: 'なぜ遅延?',
-            choices: ['Why is the flight delayed?', 'Why why slow?', 'Plane bad me?'] },
-          { speaker: 'npc', en: 'Mechanical issues. The team is working on it.', ja: '機材トラブルです。対応中。' },
-          { speaker: 'you', en: 'How long do you expect the delay?', ja: 'どれくらいの遅延見込み?',
-            choices: ['How long do you expect the delay?', 'Long long me?', 'Wait time how?'] },
-          { speaker: 'npc', en: 'At least four hours.', ja: '最低4時間。' },
-          { speaker: 'you', en: 'Are there any alternative flights?', ja: '別の便はあります?',
-            choices: ['Are there any alternative flights?', 'Other plane yes me?', 'Different fly?'] },
-          { speaker: 'npc', en: 'Let me check. There\'s one in two hours.', ja: '確認します。2時間後に1便。' },
-          { speaker: 'you', en: 'Could I switch to that one?', ja: 'それに変えられる?',
-            choices: ['Could I switch to that one?', 'Change me that?', 'Switch please.'] },
-          { speaker: 'npc', en: 'Yes, but it has a layover in Seoul.', ja: 'はい、ソウル経由になります。' },
-          { speaker: 'you', en: 'That\'s fine, as long as I get home today.', ja: '今日帰れるなら大丈夫。',
-            choices: ['That\'s fine, as long as I get home today.', 'Today home good.', 'Yes Seoul okay.'] },
-          { speaker: 'npc', en: 'Okay. I\'ll change your booking.', ja: 'では変更します。' },
-          { speaker: 'you', en: 'What about my luggage?', ja: '荷物はどうなる?',
-            choices: ['What about my luggage?', 'Bag bag where?', 'Luggage you?'] },
-          { speaker: 'npc', en: 'We\'ll transfer it for you.', ja: 'こちらで移送します。' },
-          { speaker: 'you', en: 'Will I have time to make the connection?', ja: '乗り継ぎ時間は足りる?',
-            choices: ['Will I have time to make the connection?', 'Time time enough?', 'Connect quick me?'] },
-          { speaker: 'npc', en: 'Yes, there\'s a two-hour layover.', ja: 'はい、2時間あります。' },
-          { speaker: 'you', en: 'That sounds manageable.', ja: 'なんとかなりそう。',
-            choices: ['That sounds manageable.', 'Manage me good.', 'Two hour okay me.'] },
-          { speaker: 'npc', en: 'Here\'s your new boarding pass.', ja: '新しい搭乗券です。' },
-          { speaker: 'you', en: 'Thank you so much.', ja: '本当にありがとう。',
-            choices: ['Thank you so much.', 'You thank big.', 'So thank yes.'] },
-          { speaker: 'npc', en: 'Is there anything else?', ja: '他にご質問は?' },
-          { speaker: 'you', en: 'Where can I get a meal?', ja: '食事はどこで?',
-            choices: ['Where can I get a meal?', 'Food food me where?', 'Eat eat where?'] },
-          { speaker: 'npc', en: 'There\'s a food court on the second floor.', ja: '2階にフードコートが。' },
-          { speaker: 'you', en: 'Will the airline cover it?', ja: '航空会社が負担してくれる?',
-            choices: ['Will the airline cover it?', 'Airline pay me?', 'Free food me?'] },
-          { speaker: 'npc', en: 'Yes, here\'s a meal voucher for the wait.', ja: 'はい、お待たせした食事券です。' },
-          { speaker: 'you', en: 'That\'s very kind. Thank you.', ja: 'ご親切に、ありがとう。',
-            choices: ['That\'s very kind. Thank you.', 'Voucher voucher yes!', 'Kind kind you me.'] },
-          { speaker: 'npc', en: 'We\'re sorry again for the inconvenience.', ja: '改めてご迷惑をお詫びします。' },
-          { speaker: 'you', en: 'It happens. I appreciate your help.', ja: 'よくあることです。助かりました。',
-            choices: ['It happens. I appreciate your help.', 'Happen happen yes.', 'Help help thank.'] },
-          { speaker: 'npc', en: 'Have a safe trip home.', ja: '気をつけて帰ってください。' },
-          { speaker: 'you', en: 'Thank you. You too.', ja: 'ありがとう。あなたも。',
-            choices: ['Thank you. You too.', 'You me too.', 'Safe yes home.'] }
+        "id": "st5s3",
+        "title": "会議後の確認",
+        "icon": "💼",
+        "situation": "会議後に論点・承認者・期限を整理する",
+        "dialogue": [
+          {
+            "speaker": "npc",
+            "en": "Thanks again for joining the call earlier. I wanted to follow up now while the main decisions and open questions are still fresh.",
+            "ja": "先ほどの通話に参加していただきありがとうございました。主な決定事項と未解決の質問がまだ新しいうちにフォローアップしたいと思いました。"
+          },
+          {
+            "speaker": "you",
+            "en": "Thanks for reaching out. My main takeaway is that the timeline is possible, but only if we confirm the requirements, owner, and approval process this week.",
+            "ja": "ご連絡ありがとうございます。私の主な理解は、今週中に要件と承認プロセスを確認できればスケジュールは可能だということです。",
+            "choices": [
+              "Thanks for reaching out. My main takeaway is that the timeline is possible, but only if we confirm the requirements, owner, and approval process this week.",
+              "Thanks for reaching out. My main takeaway is that dinner is possible, but only if we confirm the menu and reservation time this week.",
+              "Thanks for reaching out. My main takeaway is that the repair is possible, but only if we confirm the parts and appointment window this week.",
+              "Thanks for reaching out. My main takeaway is that the refund is possible, but only if we confirm the receipt and original purchase date this week."
+            ]
+          },
+          {
+            "speaker": "npc",
+            "en": "That matches my understanding. The one piece I am still unsure about is who has final approval if the scope changes slightly.",
+            "ja": "私の理解とも一致しています。まだ不明なのは、範囲が少し変わった場合に誰が最終承認するかです。"
+          },
+          {
+            "speaker": "you",
+            "en": "I can check that on our side today and send you a clear answer by tomorrow morning, as long as that timing works for you.",
+            "ja": "その点はこちら側で今日確認し、もしそのタイミングで問題なければ、明日の朝までに明確な回答を送れます。",
+            "choices": [
+              "I can check that on our side today and send you a clear answer by tomorrow morning, as long as that timing works for you.",
+              "I can check that with the restaurant today and send you a clear menu by tomorrow morning, as long as that timing works for you.",
+              "I can check that with the hotel today and send you a clear address by tomorrow morning, as long as that timing works for you.",
+              "I can check that with the store today and send you a clear label by tomorrow morning, as long as that timing works for you."
+            ]
+          },
+          {
+            "speaker": "npc",
+            "en": "That would be perfect. Once we know the approval path, we can decide whether Friday is still realistic or too risky.",
+            "ja": "それで完璧です。承認ルートが分かれば、金曜日がまだ現実的か、それともリスクが高すぎるか判断できます。"
+          },
+          {
+            "speaker": "you",
+            "en": "Agreed. I do not want to promise Friday before we know the approval path, but I will push for a quick answer.",
+            "ja": "同意です。承認ルートが分かる前に金曜日と約束したくありませんが、早い回答を得られるよう進めます。",
+            "choices": [
+              "Agreed. I do not want to promise Friday before we know the approval path, but I will push for a quick answer.",
+              "Agreed. I do not want to order dinner before we know the allergy details, but I will ask for a quick answer.",
+              "Agreed. I do not want to book the room before we know the cancellation policy, but I will check for a quick answer.",
+              "Agreed. I do not want to return the item before we know the warranty rules, but I will ask for a quick answer."
+            ]
+          }
         ]
       },
       {
-        id: 'st5s4', title: '観光ガイドツアー', icon: '🏰',
-        situation: 'ガイドさんと巡るお城ツアー長尺版',
-        dialogue: [
-          { speaker: 'npc', en: 'Welcome to the Grand Castle Tour. I\'m your guide.', ja: 'グランドキャッスルツアーへ。ガイドです。' },
-          { speaker: 'you', en: 'Hi! I\'m excited to see it.', ja: '見るのが楽しみ!',
-            choices: ['Hi! I\'m excited to see it.', 'Excite me!', 'Hello hello me.'] },
-          { speaker: 'npc', en: 'Have you been here before?', ja: '初めて?' },
-          { speaker: 'you', en: 'No, this is my first time.', ja: 'はい、初めて。',
-            choices: ['No, this is my first time.', 'Yes I no come.', 'First first me.'] },
-          { speaker: 'npc', en: 'Where are you visiting from?', ja: 'どちらから?' },
-          { speaker: 'you', en: 'I\'m from Japan.', ja: '日本から。',
-            choices: ['I\'m from Japan.', 'Japan Japan me.', 'I live Japan.'] },
-          { speaker: 'npc', en: 'Welcome! How long is your trip?', ja: 'ようこそ!旅は何日?' },
-          { speaker: 'you', en: 'Just one week.', ja: '1週間です。',
-            choices: ['Just one week.', 'Week week me.', 'Yes one me.'] },
-          { speaker: 'npc', en: 'Plenty of time to explore. Let\'s start.', ja: '十分ですね。さあ始めましょう。' },
-          { speaker: 'npc', en: 'This castle was built in 1450.', ja: 'このお城は1450年築。' },
-          { speaker: 'you', en: 'Wow, that\'s old. Who lived here?', ja: '古い!誰が住んでた?',
-            choices: ['Wow, that\'s old. Who lived here?', 'Old old who?', 'Live live me?'] },
-          { speaker: 'npc', en: 'A royal family for over 500 years.', ja: '500年以上、王室が。' },
-          { speaker: 'you', en: 'How big is the castle?', ja: 'どのくらいの大きさ?',
-            choices: ['How big is the castle?', 'Big big how?', 'Castle me size?'] },
-          { speaker: 'npc', en: 'Over 200 rooms.', ja: '200部屋以上。' },
-          { speaker: 'you', en: 'Two hundred? That\'s incredible.', ja: '200?信じられない。',
-            choices: ['Two hundred? That\'s incredible.', 'Two hundred wow!', 'Many many room.'] },
-          { speaker: 'npc', en: 'We\'ll only see the most important ones.', ja: '今日は重要な部屋だけ見ます。' },
-          { speaker: 'you', en: 'How long is the tour?', ja: 'ツアー時間は?',
-            choices: ['How long is the tour?', 'Tour tour time?', 'I time tour?'] },
-          { speaker: 'npc', en: 'About one and a half hours.', ja: '1時間半ほど。' },
-          { speaker: 'you', en: 'Can I take pictures inside?', ja: '中で写真撮れる?',
-            choices: ['Can I take pictures inside?', 'Picture me yes?', 'Camera camera no?'] },
-          { speaker: 'npc', en: 'Yes, but no flash.', ja: 'はい、フラッシュなしで。' },
-          { speaker: 'you', en: 'Got it. What\'s the most famous room?', ja: 'はい。一番有名な部屋は?',
-            choices: ['Got it. What\'s the most famous room?', 'Famous famous me?', 'Best best room?'] },
-          { speaker: 'npc', en: 'The Grand Hall, where balls were held.', ja: 'グランドホール、舞踏会の。' },
-          { speaker: 'you', en: 'I\'d love to see that.', ja: 'ぜひ見たい。',
-            choices: ['I\'d love to see that.', 'See see me.', 'Ball ball me!'] },
-          { speaker: 'npc', en: 'We\'ll be there in about ten minutes.', ja: '10分後に到着します。' },
-          { speaker: 'you', en: 'Are there any local sweets to try afterward?', ja: 'あとで地元のお菓子は試せる?',
-            choices: ['Are there any local sweets to try afterward?', 'Sweet sweet me?', 'Cake cake here?'] },
-          { speaker: 'npc', en: 'The cafe sells traditional cookies.', ja: 'カフェで伝統クッキーを。' },
-          { speaker: 'you', en: 'Sounds delicious!', ja: '美味しそう!',
-            choices: ['Sounds delicious!', 'Yum yum me!', 'Cookie cookie!'] },
-          { speaker: 'npc', en: 'They go great with the local tea.', ja: '地元のお茶と相性抜群。' },
-          { speaker: 'you', en: 'I\'ll definitely try them. Thanks for the recommendation.', ja: 'ぜひ試します、ありがとう。',
-            choices: ['I\'ll definitely try them. Thanks for the recommendation.', 'Tea tea yes me.', 'Recommend yes me.'] },
-          { speaker: 'npc', en: 'My pleasure. Now, let\'s continue the tour.', ja: 'いえ。さあ続けましょう。' }
+        "id": "st5s4",
+        "title": "仕事上の認識合わせ",
+        "icon": "🗣️",
+        "situation": "会議での不満と必要な情報を冷静に説明する",
+        "dialogue": [
+          {
+            "speaker": "npc",
+            "en": "I wanted to check in about the project, because I sensed some frustration in yesterday’s meeting and did not want to ignore it.",
+            "ja": "昨日の会議で少し不満があるように感じたので、無視したくなくてプロジェクトについて確認したいと思いました。"
+          },
+          {
+            "speaker": "you",
+            "en": "I appreciate you bringing it up. I was frustrated, but mostly because I felt we were making decisions without enough information about the customer impact and possible risks.",
+            "ja": "話題にしてくれてありがとうございます。不満はありましたが、主に影響に関する十分な情報なしに決定していると感じたからです。",
+            "choices": [
+              "I appreciate you bringing it up. I was frustrated, but mostly because I felt we were making decisions without enough information about the customer impact and possible risks.",
+              "I appreciate you bringing it up. I was hungry, but mostly because I felt we were ordering dinner without enough information about the ingredients.",
+              "I appreciate you bringing it up. I was worried, but mostly because I felt we were booking travel without enough information about the schedule.",
+              "I appreciate you bringing it up. I was confused, but mostly because I felt we were returning items without enough information about the policy."
+            ]
+          },
+          {
+            "speaker": "npc",
+            "en": "That is helpful to hear. What information do you think would have made the decision easier or more comfortable for you?",
+            "ja": "それを聞けて助かります。どんな情報があれば、あなたにとって判断しやすく、安心できたと思いますか？"
+          },
+          {
+            "speaker": "you",
+            "en": "For me, the biggest gap was the customer impact. I wanted to understand who would be affected and how serious the issue might become.",
+            "ja": "私にとって一番の不足は顧客への影響でした。誰に影響が出るのか、その問題がどれほど深刻になり得るのかを理解したかったです。",
+            "choices": [
+              "For me, the biggest gap was the customer impact. I wanted to understand who would be affected and how serious the issue might become.",
+              "For me, the biggest gap was the dinner price. I wanted to understand who would pay and how expensive the meal might become.",
+              "For me, the biggest gap was the hotel location. I wanted to understand who would stay and how inconvenient the trip might become.",
+              "For me, the biggest gap was the return policy. I wanted to understand who would approve it and how strict the process might become."
+            ]
+          },
+          {
+            "speaker": "npc",
+            "en": "That is fair. I can see how the conversation moved too quickly, especially if that part was not clearly explained.",
+            "ja": "それはもっともです。その部分が明確に説明されていなかったなら、会話が早く進みすぎたと感じるのも分かります。"
+          },
+          {
+            "speaker": "you",
+            "en": "I am not trying to slow everything down. I just think a quick impact check would help us avoid much bigger problems later.",
+            "ja": "すべてを遅らせたいわけではありません。ただ、簡単な影響確認をすることで、後のもっと大きな問題を避けられると思います。",
+            "choices": [
+              "I am not trying to slow everything down. I just think a quick impact check would help us avoid much bigger problems later.",
+              "I am not trying to change the whole order. I just think a quick ingredient check would help us avoid bigger problems later.",
+              "I am not trying to delay the whole trip. I just think a quick traffic check would help us avoid bigger problems later.",
+              "I am not trying to return the whole purchase. I just think a quick damage check would help us avoid bigger problems later."
+            ]
+          }
         ]
       },
       {
-        id: 'st5s5', title: '財布紛失の総合対応', icon: '😱',
-        situation: '通行人〜警察〜大使館〜カード会社まで',
-        dialogue: [
-          { speaker: 'you', en: 'Excuse me, I need help. I lost my wallet.', ja: 'すみません、財布をなくしました。',
-            choices: ['Excuse me, I need help. I lost my wallet.', 'Wallet me no.', 'Help help money.'] },
-          { speaker: 'npc', en: 'Oh no. Where did you have it last?', ja: '大変。最後に持ってたのは?' },
-          { speaker: 'you', en: 'At the museum, about an hour ago.', ja: '美術館で、1時間前くらい。',
-            choices: ['At the museum, about an hour ago.', 'Museum hour ago.', 'I no know me.'] },
-          { speaker: 'npc', en: 'Have you contacted the museum?', ja: '美術館には連絡した?' },
-          { speaker: 'you', en: 'Yes, but they haven\'t found it.', ja: 'はい、でも見つかってない。',
-            choices: ['Yes, but they haven\'t found it.', 'Yes but no find.', 'Find no me.'] },
-          { speaker: 'npc', en: 'You should report it to the police.', ja: '警察に届けたほうがいい。' },
-          { speaker: 'you', en: 'Where\'s the nearest police station?', ja: '最寄りの警察署は?',
-            choices: ['Where\'s the nearest police station?', 'Police police me?', 'I want police where?'] },
-          { speaker: 'npc', en: 'Two blocks east on Main Street.', ja: 'メインストリートを東へ2ブロック。' },
-          { speaker: 'you', en: 'Thank you so much.', ja: '本当にありがとう。',
-            choices: ['Thank you so much.', 'You help me thank.', 'So thank you me.'] },
-          { speaker: 'npc', en: 'Hello, can I help you?', ja: 'こんにちは、ご用件は?' },
-          { speaker: 'you', en: 'I\'d like to report a lost wallet.', ja: '紛失届を出したいです。',
-            choices: ['I\'d like to report a lost wallet.', 'Wallet report me.', 'Lose wallet I want.'] },
-          { speaker: 'npc', en: 'I see. Can you describe it?', ja: 'はい。どんな財布?' },
-          { speaker: 'you', en: 'A black leather wallet.', ja: '黒い革財布。',
-            choices: ['A black leather wallet.', 'Black wallet me.', 'Leather color black.'] },
-          { speaker: 'npc', en: 'What was inside?', ja: '中身は?' },
-          { speaker: 'you', en: 'My passport, credit cards, and some cash.', ja: 'パスポート、カード、現金少し。',
-            choices: ['My passport, credit cards, and some cash.', 'Passport card cash me.', 'Many many thing.'] },
-          { speaker: 'npc', en: 'Your passport too? You\'ll need to contact your embassy.', ja: 'パスポートも?大使館に連絡を。' },
-          { speaker: 'you', en: 'How can I do that?', ja: 'どうやって?',
-            choices: ['How can I do that?', 'How how me?', 'I no know.'] },
-          { speaker: 'npc', en: 'Here\'s the number for the Japanese embassy.', ja: '日本大使館の番号です。' },
-          { speaker: 'you', en: 'Thank you. What about my credit cards?', ja: 'ありがとう。クレジットカードは?',
-            choices: ['Thank you. What about my credit cards?', 'Card card me?', 'Money card you?'] },
-          { speaker: 'npc', en: 'Call your card company immediately to cancel.', ja: 'すぐカード会社に電話して止めて。' },
-          { speaker: 'you', en: 'I\'ll do that right away.', ja: 'すぐやります。',
-            choices: ['I\'ll do that right away.', 'Yes me call now.', 'Now now me do.'] },
-          { speaker: 'npc', en: 'Take this report number for insurance.', ja: '保険用にこの届け番号を。' },
-          { speaker: 'you', en: 'Got it. Thank you for your help.', ja: 'はい。助かりました。',
-            choices: ['Got it. Thank you for your help.', 'Number good me.', 'Help help good.'] },
-          { speaker: 'npc', en: 'Is there anything else?', ja: '他には?' },
-          { speaker: 'you', en: 'Do I need to do anything else right now?', ja: '他に今やることは?',
-            choices: ['Do I need to do anything else right now?', 'More more me?', 'Other other do?'] },
-          { speaker: 'npc', en: 'Just contact the embassy and your bank.', ja: '大使館と銀行に連絡だけ。' },
-          { speaker: 'you', en: 'Okay. How long for a new passport?', ja: 'はい。新パスポートはどれくらい?',
-            choices: ['Okay. How long for a new passport?', 'New passport me when?', 'Long long passport?'] },
-          { speaker: 'npc', en: 'Usually a few days at the embassy.', ja: '大使館で数日です。' },
-          { speaker: 'you', en: 'That\'s faster than I thought.', ja: '思ったより早い。',
-            choices: ['That\'s faster than I thought.', 'Fast fast yes!', 'I think slow.'] },
-          { speaker: 'npc', en: 'I hope you find your wallet. Stay safe.', ja: '見つかるといいですね。気をつけて。' },
-          { speaker: 'you', en: 'Thank you. I really appreciate your help.', ja: 'ありがとう、本当に感謝します。',
-            choices: ['Thank you. I really appreciate your help.', 'Help help me thank!', 'Safe safe me yes!'] }
+        "id": "st5s5",
+        "title": "財布紛失の相談",
+        "icon": "👛",
+        "situation": "財布をなくした状況を説明して対応を聞く",
+        "dialogue": [
+          {
+            "speaker": "npc",
+            "en": "I can help you file a lost item report. Can you describe the wallet and tell me where you last remember using it?",
+            "ja": "遺失物届の作成をお手伝いできます。財布の特徴と最後に使った場所を説明してもらえますか？"
+          },
+          {
+            "speaker": "you",
+            "en": "It is a small black leather wallet, and I last remember using it at the coffee shop near Gate B about twenty minutes ago.",
+            "ja": "小さい黒い革の財布で、最後に使ったのは約20分前、Bゲート近くのコーヒーショップです。",
+            "choices": [
+              "It is a small black leather wallet, and I last remember using it at the coffee shop near Gate B about twenty minutes ago.",
+              "It is a small black carry-on bag, and I last remember placing it in the overhead bin near Row B after boarding.",
+              "It is a small blue notebook, and I last remember writing in it during the meeting near the window this morning.",
+              "It is a small white receipt, and I last remember putting it in the shopping bag near the register yesterday."
+            ]
+          },
+          {
+            "speaker": "npc",
+            "en": "Thank you. Do you remember whether it had any cards, cash, identification, or anything else important inside?",
+            "ja": "ありがとうございます。中にカード、現金、身分証、または他に重要なものが入っていたか覚えていますか？"
+          },
+          {
+            "speaker": "you",
+            "en": "Yes, it had two credit cards, my driver’s license, and a little cash, but I do not think there was anything else important.",
+            "ja": "はい、クレジットカード2枚、運転免許証、少しの現金が入っていましたが、他に重要なものはなかったと思います。",
+            "choices": [
+              "Yes, it had two credit cards, my driver’s license, and a little cash, but I do not think there was anything else important.",
+              "Yes, it had two sandwiches, a small salad, and a little sauce, but I do not think there was anything else spicy.",
+              "Yes, it had two tickets, my boarding pass, and a small note, but I do not think there was anything else urgent.",
+              "Yes, it had two shirts, my receipt, and a small label, but I do not think there was anything else expensive."
+            ]
+          },
+          {
+            "speaker": "npc",
+            "en": "I will enter that now. If someone turns it in, we can contact you by phone or email, whichever you prefer.",
+            "ja": "今それを入力します。誰かが届けてくれた場合、電話かメールのどちらでも希望する方法で連絡できます。"
+          },
+          {
+            "speaker": "you",
+            "en": "Email is best, because I may need to cancel my cards soon, and my phone could be tied up for a while.",
+            "ja": "メールが一番いいです。すぐにカードを停止する必要があるかもしれず、電話はしばらく使っている可能性があるので。",
+            "choices": [
+              "Email is best, because I may need to cancel my cards soon, and my phone could be tied up for a while.",
+              "Email is best, because I may need to change my flight soon, and the gate could be crowded for a while.",
+              "Email is best, because I may need to move my room soon, and the front desk could be busy for a while.",
+              "Email is best, because I may need to return the item soon, and the store could be crowded for a while."
+            ]
+          }
         ]
       }
     ]
   }
 ];
-
-/* =====================================================
-   音声ヘルパー — 録音済みm4aファイル優先 + TTSフォールバック
-   - audio/ 配下に Mac の Premium 音声で生成された m4a ファイルがある
-   - audio/manifest.json でテキスト→ファイルパスのマッピング
-   - ファイルがあればそれを再生 (高品質)、なければ Web Speech API
-   - localStorage で速度等は保持
-===================================================== */
-let _audioManifest = null;
-let _audioManifestLoaded = false;
-async function _loadManifest() {
-  if (_audioManifestLoaded) return _audioManifest;
-  _audioManifestLoaded = true;
-  try {
-    const res = await fetch('audio/manifest.json', { cache: 'force-cache' });
-    if (res.ok) {
-      _audioManifest = await res.json();
-    }
-  } catch (e) { /* manifest なしならTTSフォールバック */ }
-  return _audioManifest;
-}
-// ページ読み込み時にプリフェッチ
-if (typeof window !== 'undefined') _loadManifest();
 
 const VOICE_PREF_KEY = 'tts_voice_pref';
 let _voicesCache = null;
@@ -1006,9 +1613,17 @@ function _getVoicesAsync(timeoutMs = 1500) {
       }
     };
     const cleanup = () => {
-      window.speechSynthesis.removeEventListener('voiceschanged', handler);
+      if (typeof window.speechSynthesis.removeEventListener === 'function') {
+        window.speechSynthesis.removeEventListener('voiceschanged', handler);
+      } else if ('onvoiceschanged' in window.speechSynthesis) {
+        window.speechSynthesis.onvoiceschanged = null;
+      }
     };
-    window.speechSynthesis.addEventListener('voiceschanged', handler);
+    if (typeof window.speechSynthesis.addEventListener === 'function') {
+      window.speechSynthesis.addEventListener('voiceschanged', handler);
+    } else if ('onvoiceschanged' in window.speechSynthesis) {
+      window.speechSynthesis.onvoiceschanged = handler;
+    }
     setTimeout(() => {
       cleanup();
       resolve(window.speechSynthesis.getVoices() || []);
@@ -1027,6 +1642,22 @@ function warmUpTTS() {
     window.speechSynthesis.speak(u);
     _ttsWarmedUp = true;
   } catch (e) { /* noop */ }
+}
+
+
+let _audioManifestCache = undefined;
+async function _loadManifest() {
+  if (_audioManifestCache !== undefined) return _audioManifestCache;
+  _audioManifestCache = null;
+  if (typeof fetch !== 'function') return null;
+  try {
+    const res = await fetch('audio/manifest.json', { cache: 'no-store' });
+    if (!res || !res.ok) return null;
+    _audioManifestCache = await res.json();
+    return _audioManifestCache;
+  } catch (e) {
+    return null;
+  }
 }
 
 // 直前のオーディオを止めるため、グローバルに参照を持つ
@@ -1061,8 +1692,9 @@ async function _speakFromFile(text, rate) {
 }
 
 async function speak(text, { rate = 0.95 } = {}) {
-  // 録音ファイルが使えるならそれを優先 (高品質)
-  const ok = await _speakFromFile(text, rate);
+  // 録音ファイルが使えるならそれを優先 (高品質)。失敗しても必ずTTSへ進む。
+  let ok = false;
+  try { ok = await _speakFromFile(text, rate); } catch (e) { ok = false; }
   if (ok) return;
   // フォールバック: ブラウザTTS
   if (!('speechSynthesis' in window)) return;
@@ -1138,9 +1770,6 @@ const Store = {
   }
 };
 
-/* =====================================================
-   カリキュラム / レベル / 星
-===================================================== */
 const MAX_LEVEL = 100;
 const PROGRESS_KEY = 'curriculum_v2';
 
@@ -1178,10 +1807,8 @@ const Curriculum = {
   },
 
   isStageUnlocked(stageIdx) {
-    if (stageIdx === 0) return true;
-    const prev = STAGES[stageIdx - 1];
-    const prog = this.stageProgress(prev);
-    return prog.cleared >= prog.total;
+    // All stages are open while testing high-level content.
+    return true;
   },
 
   isStageCleared(stage) {
